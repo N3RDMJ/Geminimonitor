@@ -2843,93 +2843,120 @@ export function SettingsView({
                   </div>
                 )}
 
-                <div className="settings-field">
-                  <label className="settings-field-label" htmlFor="default-access">
-                    Default access mode
-                  </label>
-                  <select
-                    id="default-access"
-                    className="settings-select"
-                    value={appSettings.defaultAccessMode}
-                    onChange={(event) =>
-                      void onUpdateAppSettings({
-                        ...appSettings,
-                        defaultAccessMode: event.target.value as AppSettings["defaultAccessMode"],
-                      })
-                    }
-                  >
-                    <option value="read-only">Read only</option>
-                    <option value="current">On-request</option>
-                    <option value="full-access">Full access</option>
-                  </select>
-                </div>
-
-                <div className="settings-field">
-                  <label className="settings-field-label" htmlFor="backend-mode">
-                    Backend mode
-                  </label>
-                  <select
-                    id="backend-mode"
-                    className="settings-select"
-                    value={appSettings.backendMode}
-                    onChange={(event) =>
-                      void onUpdateAppSettings({
-                        ...appSettings,
-                        backendMode: event.target.value as AppSettings["backendMode"],
-                      })
-                    }
-                  >
-                    <option value="local">Local (default)</option>
-                    <option value="remote">Remote (daemon)</option>
-                  </select>
-                  <div className="settings-help">
-                    Remote mode connects to a separate daemon running the backend on another machine (e.g. WSL2/Linux).
-                  </div>
-                </div>
-
-                {appSettings.backendMode === "remote" && (
-                  <div className="settings-field">
-                    <div className="settings-field-label">Remote backend</div>
-                    <div className="settings-field-row">
-                      <input
-                        className="settings-input settings-input--compact"
-                        value={remoteHostDraft}
-                        placeholder="127.0.0.1:4732"
-                        onChange={(event) => setRemoteHostDraft(event.target.value)}
-                        onBlur={() => {
-                          void handleCommitRemoteHost();
-                        }}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            event.preventDefault();
-                            void handleCommitRemoteHost();
-                          }
-                        }}
-                        aria-label="Remote backend host"
-                      />
-                      <input
-                        type="password"
-                        className="settings-input settings-input--compact"
-                        value={remoteTokenDraft}
-                        placeholder="Token (optional)"
-                        onChange={(event) => setRemoteTokenDraft(event.target.value)}
-                        onBlur={() => {
-                          void handleCommitRemoteToken();
-                        }}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            event.preventDefault();
-                            void handleCommitRemoteToken();
-                          }
-                        }}
-                        aria-label="Remote backend token"
-                      />
+                {/* Cursor CLI specific settings */}
+                {appSettings.cliType === "cursor" && (
+                  <>
+                    <div className="settings-field">
+                      <div className="settings-field-label">Cursor Configuration</div>
+                      <div className="settings-help">
+                        Cursor CLI uses its own authentication and settings system.
+                        Configure Cursor settings directly in the Cursor application.
+                      </div>
                     </div>
-                    <div className="settings-help">
-                      Start the daemon separately and point GeminiMonitor to it (host:port + token).
+
+                    <div className="settings-field">
+                      <div className="settings-field-label">Cursor Features</div>
+                      <div className="settings-help">
+                        <ul style={{ margin: "8px 0", paddingLeft: "20px" }}>
+                          <li>Authentication is handled through your Cursor account</li>
+                          <li>Settings are managed in Cursor&apos;s preferences</li>
+                          <li>AI features use Cursor&apos;s built-in models</li>
+                        </ul>
+                      </div>
                     </div>
-                  </div>
+                  </>
                 )}
+
+                {/* Gemini CLI specific settings */}
+                {appSettings.cliType === "gemini" && (
+                  <>
+                    <div className="settings-field">
+                      <label className="settings-field-label" htmlFor="default-access">
+                        Default access mode
+                      </label>
+                      <select
+                        id="default-access"
+                        className="settings-select"
+                        value={appSettings.defaultAccessMode}
+                        onChange={(event) =>
+                          void onUpdateAppSettings({
+                            ...appSettings,
+                            defaultAccessMode: event.target.value as AppSettings["defaultAccessMode"],
+                          })
+                        }
+                      >
+                        <option value="read-only">Read only</option>
+                        <option value="current">On-request</option>
+                        <option value="full-access">Full access</option>
+                      </select>
+                    </div>
+
+                    <div className="settings-field">
+                      <label className="settings-field-label" htmlFor="backend-mode">
+                        Backend mode
+                      </label>
+                      <select
+                        id="backend-mode"
+                        className="settings-select"
+                        value={appSettings.backendMode}
+                        onChange={(event) =>
+                          void onUpdateAppSettings({
+                            ...appSettings,
+                            backendMode: event.target.value as AppSettings["backendMode"],
+                          })
+                        }
+                      >
+                        <option value="local">Local (default)</option>
+                        <option value="remote">Remote (daemon)</option>
+                      </select>
+                      <div className="settings-help">
+                        Remote mode connects to a separate daemon running the backend on another machine (e.g. WSL2/Linux).
+                      </div>
+                    </div>
+
+                    {appSettings.backendMode === "remote" && (
+                      <div className="settings-field">
+                        <div className="settings-field-label">Remote backend</div>
+                        <div className="settings-field-row">
+                          <input
+                            className="settings-input settings-input--compact"
+                            value={remoteHostDraft}
+                            placeholder="127.0.0.1:4732"
+                            onChange={(event) => setRemoteHostDraft(event.target.value)}
+                            onBlur={() => {
+                              void handleCommitRemoteHost();
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
+                                void handleCommitRemoteHost();
+                              }
+                            }}
+                            aria-label="Remote backend host"
+                          />
+                          <input
+                            type="password"
+                            className="settings-input settings-input--compact"
+                            value={remoteTokenDraft}
+                            placeholder="Token (optional)"
+                            onChange={(event) => setRemoteTokenDraft(event.target.value)}
+                            onBlur={() => {
+                              void handleCommitRemoteToken();
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
+                                void handleCommitRemoteToken();
+                              }
+                            }}
+                            aria-label="Remote backend token"
+                          />
+                        </div>
+                        <div className="settings-help">
+                          Start the daemon separately and point GeminiMonitor to it (host:port + token).
+                        </div>
+                      </div>
+                    )}
 
                 <FileEditorCard
                   title="Global AGENTS.md"
@@ -3359,6 +3386,8 @@ export function SettingsView({
                     )}
                   </div>
                 </div>
+                </>
+                )}
 
               </section>
             )}
