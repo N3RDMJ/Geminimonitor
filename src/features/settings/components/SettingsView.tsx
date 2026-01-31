@@ -2995,15 +2995,36 @@ export function SettingsView({
                     </div>
 
                     <div className="settings-field">
+                      <div className="settings-field-label">Agent Skills</div>
+                      <div className="settings-help">
+                        Agent Skills provide dynamic capabilities the agent uses when relevant.
+                        Skills are located in <code>.cursor/skills/</code> (project) or <code>~/.cursor/skills/</code> (global).
+                      </div>
+                      <div className="settings-help" style={{ marginTop: "8px", color: "var(--color-warning)" }}>
+                        <strong>Note:</strong> Agent Skills require the <strong>Nightly</strong> update channel.
+                        Enable in Cursor Settings → Beta → Update Channel → Nightly.
+                      </div>
+                    </div>
+
+                    <div className="settings-field">
+                      <div className="settings-field-label">Latest Features (January 2026)</div>
+                      <div className="settings-help">
+                        <ul style={{ margin: "8px 0", paddingLeft: "20px" }}>
+                          <li><strong>Plan Mode</strong> - Design approach before coding (<code>/plan</code> or <code>--mode=plan</code>)</li>
+                          <li><strong>Ask Mode</strong> - Read-only exploration (<code>/ask</code> or <code>--mode=ask</code>)</li>
+                          <li><strong>Cloud Handoff</strong> - Push conversations to Cloud Agent with <code>&amp;</code> prefix</li>
+                          <li><strong>Multi-Agent</strong> - Run parallel agents with automatic git worktree management</li>
+                          <li><strong>MCP Authentication</strong> - One-click auth with automatic callback handling</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="settings-field">
                       <div className="settings-field-label">Beta Features</div>
                       <div className="settings-help">
                         Access beta features in Cursor Settings → Beta or use the keyboard shortcut:
                         <br />
                         <code>Cmd+Shift+J</code> (macOS) or <code>Ctrl+Shift+J</code> (Windows/Linux)
-                      </div>
-                      <div className="settings-help" style={{ marginTop: "8px" }}>
-                        Available beta features include: Long Context Chat, Interpreter Mode,
-                        Bugbot Autofix, Debug Mode, and Plan Mode Mermaid Diagrams.
                       </div>
                     </div>
                   </>
@@ -3301,6 +3322,22 @@ export function SettingsView({
                   </div>
                   <div className="settings-help">
                     Token threshold for triggering context compression.
+                  </div>
+                </div>
+
+                <div className="settings-field">
+                  <div className="settings-field-label">Agent Skills (Experimental)</div>
+                  <div className="settings-help">
+                    Agent Skills are self-contained directories that package instructions and assets
+                    into discoverable capabilities. Unlike GEMINI.md, skills are on-demand expertise
+                    that Gemini activates when needed.
+                  </div>
+                  <div className="settings-help" style={{ marginTop: "8px" }}>
+                    Skills are located in <code>.gemini/skills/</code> (workspace) or <code>~/.gemini/skills/</code> (global).
+                    Enable via <code>/settings</code> → Preview Features → experimental.skills.
+                  </div>
+                  <div className="settings-help" style={{ marginTop: "8px" }}>
+                    <strong>Tip:</strong> Gemini CLI skills are compatible with Claude Code skills format!
                   </div>
                 </div>
 
