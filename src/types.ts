@@ -89,6 +89,7 @@ export type ReviewTarget =
 export type AccessMode = "read-only" | "current" | "full-access";
 export type BackendMode = "local" | "remote";
 export type ThemePreference = "system" | "light" | "dark" | "dim";
+export type CliType = "gemini" | "cursor";
 
 
 export type ComposerEditorPreset = "default" | "helpful" | "smart";
@@ -114,8 +115,11 @@ export type OpenAppTarget = {
 };
 
 export type AppSettings = {
+  cliType: CliType;
   geminiBin: string | null;
   geminiArgs: string | null;
+  cursorBin: string | null;
+  cursorArgs: string | null;
   backendMode: BackendMode;
   remoteBackendHost: string;
   remoteBackendToken: string | null;

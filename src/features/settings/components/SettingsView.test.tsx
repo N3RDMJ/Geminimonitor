@@ -18,8 +18,11 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 }));
 
 const baseSettings: AppSettings = {
+  cliType: "gemini",
   geminiBin: null,
   geminiArgs: null,
+  cursorBin: null,
+  cursorArgs: null,
   backendMode: "local",
   remoteBackendHost: "127.0.0.1:4732",
   remoteBackendToken: null,

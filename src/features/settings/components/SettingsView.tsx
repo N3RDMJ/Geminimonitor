@@ -284,6 +284,8 @@ export function SettingsView({
   const [activeSection, setActiveSection] = useState<GeminiSection>("projects");
   const [geminiPathDraft, setGeminiPathDraft] = useState(appSettings.geminiBin ?? "");
   const [geminiArgsDraft, setGeminiArgsDraft] = useState(appSettings.geminiArgs ?? "");
+  const [cursorPathDraft, setCursorPathDraft] = useState(appSettings.cursorBin ?? "");
+  const [cursorArgsDraft, setCursorArgsDraft] = useState(appSettings.cursorArgs ?? "");
   const [remoteHostDraft, setRemoteHostDraft] = useState(appSettings.remoteBackendHost);
   const [remoteTokenDraft, setRemoteTokenDraft] = useState(appSettings.remoteBackendToken ?? "");
   const [scaleDraft, setScaleDraft] = useState(
@@ -465,6 +467,14 @@ export function SettingsView({
   }, [appSettings.geminiArgs]);
 
   useEffect(() => {
+    setCursorPathDraft(appSettings.cursorBin ?? "");
+  }, [appSettings.cursorBin]);
+
+  useEffect(() => {
+    setCursorArgsDraft(appSettings.cursorArgs ?? "");
+  }, [appSettings.cursorArgs]);
+
+  useEffect(() => {
     setRemoteHostDraft(appSettings.remoteBackendHost);
   }, [appSettings.remoteBackendHost]);
 
@@ -601,19 +611,29 @@ export function SettingsView({
     nextGeminiBin !== (appSettings.geminiBin ?? null) ||
     nextGeminiArgs !== (appSettings.geminiArgs ?? null);
 
+  const nextCursorBin = cursorPathDraft.trim() ? cursorPathDraft.trim() : null;
+  const nextCursorArgs = cursorArgsDraft.trim() ? cursorArgsDraft.trim() : null;
+  const cursorDirty =
+    nextCursorBin !== (appSettings.cursorBin ?? null) ||
+    nextCursorArgs !== (appSettings.cursorArgs ?? null);
+
+  const cliSettingsDirty = geminiDirty || cursorDirty;
+
   const trimmedScale = scaleDraft.trim();
   const parsedPercent = trimmedScale
     ? Number(trimmedScale.replace("%", ""))
     : Number.NaN;
   const parsedScale = Number.isFinite(parsedPercent) ? parsedPercent / 100 : null;
 
-  const handleSaveGeminiSettings = async () => {
+  const handleSaveCliSettings = async () => {
     setIsSavingSettings(true);
     try {
       await onUpdateAppSettings({
         ...appSettings,
         geminiBin: nextGeminiBin,
         geminiArgs: nextGeminiArgs,
+        cursorBin: nextCursorBin,
+        cursorArgs: nextCursorArgs,
       });
     } finally {
       setIsSavingSettings(false);
@@ -845,6 +865,14 @@ export function SettingsView({
       return;
     }
     setGeminiPathDraft(selection);
+  };
+
+  const handleBrowseCursor = async () => {
+    const selection = await open({ multiple: false, directory: false });
+    if (!selection || Array.isArray(selection)) {
+      return;
+    }
+    setCursorPathDraft(selection);
   };
 
   const handleRunDoctor = async () => {
@@ -2624,82 +2652,163 @@ export function SettingsView({
             )}
             {activeSection === "gemini" && (
               <section className="settings-section">
-                <div className="settings-section-title">Gemini</div>
+                <div className="settings-section-title">CLI</div>
                 <div className="settings-section-subtitle">
-                  Configure the Gemini CLI used by GeminiMonitor and validate the install.
+                  Configure the CLI used by GeminiMonitor and validate the install.
                 </div>
                 <div className="settings-field">
-                  <label className="settings-field-label" htmlFor="gemini-path">
-                    Default Gemini path
+                  <label className="settings-field-label" htmlFor="cli-type">
+                    CLI Type
                   </label>
-                  <div className="settings-field-row">
-                    <input
-                      id="gemini-path"
-                      className="settings-input"
-                      value={geminiPathDraft}
-                      placeholder="gemini"
-                      onChange={(event) => setGeminiPathDraft(event.target.value)}
-                    />
-                    <button type="button" className="ghost" onClick={handleBrowseGemini}>
-                      Browse
-                    </button>
-                    <button
-                      type="button"
-                      className="ghost"
-                      onClick={() => setGeminiPathDraft("")}
-                    >
-                      Use PATH
-                    </button>
-                  </div>
+                  <select
+                    id="cli-type"
+                    className="settings-select"
+                    value={appSettings.cliType}
+                    onChange={(event) =>
+                      void onUpdateAppSettings({
+                        ...appSettings,
+                        cliType: event.target.value as AppSettings["cliType"],
+                      })
+                    }
+                  >
+                    <option value="gemini">Gemini CLI</option>
+                    <option value="cursor">Cursor CLI</option>
+                  </select>
                   <div className="settings-help">
-                    Leave empty to use the system PATH resolution.
+                    Select which CLI to use for AI assistance.
                   </div>
-                  <label className="settings-field-label" htmlFor="gemini-args">
-                    Default Gemini args
-                  </label>
-                  <div className="settings-field-row">
-                    <input
-                      id="gemini-args"
-                      className="settings-input"
-                      value={geminiArgsDraft}
-                      placeholder="--profile personal"
-                      onChange={(event) => setGeminiArgsDraft(event.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="ghost"
-                      onClick={() => setGeminiArgsDraft("")}
-                    >
-                      Clear
-                    </button>
+                </div>
+
+                {appSettings.cliType === "gemini" && (
+                  <div className="settings-field">
+                    <label className="settings-field-label" htmlFor="gemini-path">
+                      Gemini path
+                    </label>
+                    <div className="settings-field-row">
+                      <input
+                        id="gemini-path"
+                        className="settings-input"
+                        value={geminiPathDraft}
+                        placeholder="gemini"
+                        onChange={(event) => setGeminiPathDraft(event.target.value)}
+                      />
+                      <button type="button" className="ghost" onClick={handleBrowseGemini}>
+                        Browse
+                      </button>
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() => setGeminiPathDraft("")}
+                      >
+                        Use PATH
+                      </button>
+                    </div>
+                    <div className="settings-help">
+                      Leave empty to use the system PATH resolution.
+                    </div>
+                    <label className="settings-field-label" htmlFor="gemini-args">
+                      Gemini args
+                    </label>
+                    <div className="settings-field-row">
+                      <input
+                        id="gemini-args"
+                        className="settings-input"
+                        value={geminiArgsDraft}
+                        placeholder="--profile personal"
+                        onChange={(event) => setGeminiArgsDraft(event.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() => setGeminiArgsDraft("")}
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    <div className="settings-help">
+                      Extra flags passed before <code>app-server</code>. Use quotes for values with
+                      spaces.
+                    </div>
                   </div>
-                  <div className="settings-help">
-                    Extra flags passed before <code>app-server</code>. Use quotes for values with
-                    spaces.
+                )}
+
+                {appSettings.cliType === "cursor" && (
+                  <div className="settings-field">
+                    <label className="settings-field-label" htmlFor="cursor-path">
+                      Cursor path
+                    </label>
+                    <div className="settings-field-row">
+                      <input
+                        id="cursor-path"
+                        className="settings-input"
+                        value={cursorPathDraft}
+                        placeholder="cursor"
+                        onChange={(event) => setCursorPathDraft(event.target.value)}
+                      />
+                      <button type="button" className="ghost" onClick={handleBrowseCursor}>
+                        Browse
+                      </button>
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() => setCursorPathDraft("")}
+                      >
+                        Use PATH
+                      </button>
+                    </div>
+                    <div className="settings-help">
+                      Leave empty to use the system PATH resolution.
+                    </div>
+                    <label className="settings-field-label" htmlFor="cursor-args">
+                      Cursor args
+                    </label>
+                    <div className="settings-field-row">
+                      <input
+                        id="cursor-args"
+                        className="settings-input"
+                        value={cursorArgsDraft}
+                        placeholder=""
+                        onChange={(event) => setCursorArgsDraft(event.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() => setCursorArgsDraft("")}
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    <div className="settings-help">
+                      Extra flags passed to the Cursor CLI. Use quotes for values with spaces.
+                    </div>
                   </div>
+                )}
+
                 <div className="settings-field-actions">
-                  {geminiDirty && (
+                  {cliSettingsDirty && (
                     <button
                       type="button"
                       className="primary"
-                      onClick={handleSaveGeminiSettings}
+                      onClick={handleSaveCliSettings}
                       disabled={isSavingSettings}
                     >
                       {isSavingSettings ? "Saving..." : "Save"}
                     </button>
                   )}
-                  <button
-                    type="button"
-                    className="ghost settings-button-compact"
-                    onClick={handleRunDoctor}
-                    disabled={doctorState.status === "running"}
-                  >
-                    <Stethoscope aria-hidden />
-                    {doctorState.status === "running" ? "Running..." : "Run doctor"}
-                  </button>
+                  {appSettings.cliType === "gemini" && (
+                    <button
+                      type="button"
+                      className="ghost settings-button-compact"
+                      onClick={handleRunDoctor}
+                      disabled={doctorState.status === "running"}
+                    >
+                      <Stethoscope aria-hidden />
+                      {doctorState.status === "running" ? "Running..." : "Run doctor"}
+                    </button>
+                  )}
                 </div>
 
-                {doctorState.result && (
+                {appSettings.cliType === "gemini" && doctorState.result && (
                   <div
                     className={`settings-doctor ${doctorState.result.ok ? "ok" : "error"}`}
                   >
@@ -2733,7 +2842,6 @@ export function SettingsView({
                     </div>
                   </div>
                 )}
-              </div>
 
                 <div className="settings-field">
                   <label className="settings-field-label" htmlFor="default-access">

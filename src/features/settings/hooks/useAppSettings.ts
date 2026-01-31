@@ -20,8 +20,11 @@ import { getDefaultInterruptShortcut } from "../../../utils/shortcuts";
 const allowedThemes = new Set(["system", "light", "dark", "dim"]);
 
 const defaultSettings: AppSettings = {
+  cliType: "gemini",
   geminiBin: null,
   geminiArgs: null,
+  cursorBin: null,
+  cursorArgs: null,
   backendMode: "local",
   remoteBackendHost: "127.0.0.1:4732",
   remoteBackendToken: null,
@@ -98,8 +101,11 @@ function normalizeAppSettings(settings: AppSettings): AppSettings {
       : normalizedTargets[0]?.id ?? DEFAULT_OPEN_APP_ID;
   return {
     ...settings,
+    cliType: settings.cliType === "cursor" ? "cursor" : "gemini",
     geminiBin: settings.geminiBin?.trim() ? settings.geminiBin.trim() : null,
     geminiArgs: settings.geminiArgs?.trim() ? settings.geminiArgs.trim() : null,
+    cursorBin: settings.cursorBin?.trim() ? settings.cursorBin.trim() : null,
+    cursorArgs: settings.cursorArgs?.trim() ? settings.cursorArgs.trim() : null,
     uiScale: clampUiScale(settings.uiScale),
     theme: allowedThemes.has(settings.theme) ? settings.theme : "system",
     uiFontFamily: normalizeFontFamily(
