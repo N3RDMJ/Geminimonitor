@@ -89,6 +89,9 @@ export type ReviewTarget =
 export type AccessMode = "read-only" | "current" | "full-access";
 export type BackendMode = "local" | "remote";
 export type ThemePreference = "system" | "light" | "dark" | "dim";
+export type CliType = "gemini" | "cursor";
+export type CursorOperatingMode = "agent" | "plan" | "ask";
+export type CursorOutputFormat = "text" | "json" | "stream-json";
 
 
 export type ComposerEditorPreset = "default" | "helpful" | "smart";
@@ -114,8 +117,18 @@ export type OpenAppTarget = {
 };
 
 export type AppSettings = {
+  cliType: CliType;
   geminiBin: string | null;
   geminiArgs: string | null;
+  cursorBin: string | null;
+  cursorArgs: string | null;
+  // Cursor CLI specific settings
+  cursorVimMode: boolean;
+  cursorDefaultMode: CursorOperatingMode;
+  cursorOutputFormat: CursorOutputFormat;
+  cursorAttributeCommits: boolean;
+  cursorAttributePRs: boolean;
+  cursorUseHttp1: boolean;
   backendMode: BackendMode;
   remoteBackendHost: string;
   remoteBackendToken: string | null;

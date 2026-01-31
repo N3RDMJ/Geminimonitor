@@ -284,6 +284,8 @@ export function SettingsView({
   const [activeSection, setActiveSection] = useState<GeminiSection>("projects");
   const [geminiPathDraft, setGeminiPathDraft] = useState(appSettings.geminiBin ?? "");
   const [geminiArgsDraft, setGeminiArgsDraft] = useState(appSettings.geminiArgs ?? "");
+  const [cursorPathDraft, setCursorPathDraft] = useState(appSettings.cursorBin ?? "");
+  const [cursorArgsDraft, setCursorArgsDraft] = useState(appSettings.cursorArgs ?? "");
   const [remoteHostDraft, setRemoteHostDraft] = useState(appSettings.remoteBackendHost);
   const [remoteTokenDraft, setRemoteTokenDraft] = useState(appSettings.remoteBackendToken ?? "");
   const [scaleDraft, setScaleDraft] = useState(
@@ -465,6 +467,14 @@ export function SettingsView({
   }, [appSettings.geminiArgs]);
 
   useEffect(() => {
+    setCursorPathDraft(appSettings.cursorBin ?? "");
+  }, [appSettings.cursorBin]);
+
+  useEffect(() => {
+    setCursorArgsDraft(appSettings.cursorArgs ?? "");
+  }, [appSettings.cursorArgs]);
+
+  useEffect(() => {
     setRemoteHostDraft(appSettings.remoteBackendHost);
   }, [appSettings.remoteBackendHost]);
 
@@ -601,19 +611,29 @@ export function SettingsView({
     nextGeminiBin !== (appSettings.geminiBin ?? null) ||
     nextGeminiArgs !== (appSettings.geminiArgs ?? null);
 
+  const nextCursorBin = cursorPathDraft.trim() ? cursorPathDraft.trim() : null;
+  const nextCursorArgs = cursorArgsDraft.trim() ? cursorArgsDraft.trim() : null;
+  const cursorDirty =
+    nextCursorBin !== (appSettings.cursorBin ?? null) ||
+    nextCursorArgs !== (appSettings.cursorArgs ?? null);
+
+  const cliSettingsDirty = geminiDirty || cursorDirty;
+
   const trimmedScale = scaleDraft.trim();
   const parsedPercent = trimmedScale
     ? Number(trimmedScale.replace("%", ""))
     : Number.NaN;
   const parsedScale = Number.isFinite(parsedPercent) ? parsedPercent / 100 : null;
 
-  const handleSaveGeminiSettings = async () => {
+  const handleSaveCliSettings = async () => {
     setIsSavingSettings(true);
     try {
       await onUpdateAppSettings({
         ...appSettings,
         geminiBin: nextGeminiBin,
         geminiArgs: nextGeminiArgs,
+        cursorBin: nextCursorBin,
+        cursorArgs: nextCursorArgs,
       });
     } finally {
       setIsSavingSettings(false);
@@ -845,6 +865,14 @@ export function SettingsView({
       return;
     }
     setGeminiPathDraft(selection);
+  };
+
+  const handleBrowseCursor = async () => {
+    const selection = await open({ multiple: false, directory: false });
+    if (!selection || Array.isArray(selection)) {
+      return;
+    }
+    setCursorPathDraft(selection);
   };
 
   const handleRunDoctor = async () => {
@@ -2624,82 +2652,163 @@ export function SettingsView({
             )}
             {activeSection === "gemini" && (
               <section className="settings-section">
-                <div className="settings-section-title">Gemini</div>
+                <div className="settings-section-title">CLI</div>
                 <div className="settings-section-subtitle">
-                  Configure the Gemini CLI used by GeminiMonitor and validate the install.
+                  Configure the CLI used by GeminiMonitor and validate the install.
                 </div>
                 <div className="settings-field">
-                  <label className="settings-field-label" htmlFor="gemini-path">
-                    Default Gemini path
+                  <label className="settings-field-label" htmlFor="cli-type">
+                    CLI Type
                   </label>
-                  <div className="settings-field-row">
-                    <input
-                      id="gemini-path"
-                      className="settings-input"
-                      value={geminiPathDraft}
-                      placeholder="gemini"
-                      onChange={(event) => setGeminiPathDraft(event.target.value)}
-                    />
-                    <button type="button" className="ghost" onClick={handleBrowseGemini}>
-                      Browse
-                    </button>
-                    <button
-                      type="button"
-                      className="ghost"
-                      onClick={() => setGeminiPathDraft("")}
-                    >
-                      Use PATH
-                    </button>
-                  </div>
+                  <select
+                    id="cli-type"
+                    className="settings-select"
+                    value={appSettings.cliType}
+                    onChange={(event) =>
+                      void onUpdateAppSettings({
+                        ...appSettings,
+                        cliType: event.target.value as AppSettings["cliType"],
+                      })
+                    }
+                  >
+                    <option value="gemini">Gemini CLI</option>
+                    <option value="cursor">Cursor CLI</option>
+                  </select>
                   <div className="settings-help">
-                    Leave empty to use the system PATH resolution.
+                    Select which CLI to use for AI assistance.
                   </div>
-                  <label className="settings-field-label" htmlFor="gemini-args">
-                    Default Gemini args
-                  </label>
-                  <div className="settings-field-row">
-                    <input
-                      id="gemini-args"
-                      className="settings-input"
-                      value={geminiArgsDraft}
-                      placeholder="--profile personal"
-                      onChange={(event) => setGeminiArgsDraft(event.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="ghost"
-                      onClick={() => setGeminiArgsDraft("")}
-                    >
-                      Clear
-                    </button>
+                </div>
+
+                {appSettings.cliType === "gemini" && (
+                  <div className="settings-field">
+                    <label className="settings-field-label" htmlFor="gemini-path">
+                      Gemini path
+                    </label>
+                    <div className="settings-field-row">
+                      <input
+                        id="gemini-path"
+                        className="settings-input"
+                        value={geminiPathDraft}
+                        placeholder="gemini"
+                        onChange={(event) => setGeminiPathDraft(event.target.value)}
+                      />
+                      <button type="button" className="ghost" onClick={handleBrowseGemini}>
+                        Browse
+                      </button>
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() => setGeminiPathDraft("")}
+                      >
+                        Use PATH
+                      </button>
+                    </div>
+                    <div className="settings-help">
+                      Leave empty to use the system PATH resolution.
+                    </div>
+                    <label className="settings-field-label" htmlFor="gemini-args">
+                      Gemini args
+                    </label>
+                    <div className="settings-field-row">
+                      <input
+                        id="gemini-args"
+                        className="settings-input"
+                        value={geminiArgsDraft}
+                        placeholder="--profile personal"
+                        onChange={(event) => setGeminiArgsDraft(event.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() => setGeminiArgsDraft("")}
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    <div className="settings-help">
+                      Extra flags passed before <code>app-server</code>. Use quotes for values with
+                      spaces.
+                    </div>
                   </div>
-                  <div className="settings-help">
-                    Extra flags passed before <code>app-server</code>. Use quotes for values with
-                    spaces.
+                )}
+
+                {appSettings.cliType === "cursor" && (
+                  <div className="settings-field">
+                    <label className="settings-field-label" htmlFor="cursor-path">
+                      Cursor path
+                    </label>
+                    <div className="settings-field-row">
+                      <input
+                        id="cursor-path"
+                        className="settings-input"
+                        value={cursorPathDraft}
+                        placeholder="cursor"
+                        onChange={(event) => setCursorPathDraft(event.target.value)}
+                      />
+                      <button type="button" className="ghost" onClick={handleBrowseCursor}>
+                        Browse
+                      </button>
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() => setCursorPathDraft("")}
+                      >
+                        Use PATH
+                      </button>
+                    </div>
+                    <div className="settings-help">
+                      Leave empty to use the system PATH resolution.
+                    </div>
+                    <label className="settings-field-label" htmlFor="cursor-args">
+                      Cursor args
+                    </label>
+                    <div className="settings-field-row">
+                      <input
+                        id="cursor-args"
+                        className="settings-input"
+                        value={cursorArgsDraft}
+                        placeholder=""
+                        onChange={(event) => setCursorArgsDraft(event.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() => setCursorArgsDraft("")}
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    <div className="settings-help">
+                      Extra flags passed to the Cursor CLI. Use quotes for values with spaces.
+                    </div>
                   </div>
+                )}
+
                 <div className="settings-field-actions">
-                  {geminiDirty && (
+                  {cliSettingsDirty && (
                     <button
                       type="button"
                       className="primary"
-                      onClick={handleSaveGeminiSettings}
+                      onClick={handleSaveCliSettings}
                       disabled={isSavingSettings}
                     >
                       {isSavingSettings ? "Saving..." : "Save"}
                     </button>
                   )}
-                  <button
-                    type="button"
-                    className="ghost settings-button-compact"
-                    onClick={handleRunDoctor}
-                    disabled={doctorState.status === "running"}
-                  >
-                    <Stethoscope aria-hidden />
-                    {doctorState.status === "running" ? "Running..." : "Run doctor"}
-                  </button>
+                  {appSettings.cliType === "gemini" && (
+                    <button
+                      type="button"
+                      className="ghost settings-button-compact"
+                      onClick={handleRunDoctor}
+                      disabled={doctorState.status === "running"}
+                    >
+                      <Stethoscope aria-hidden />
+                      {doctorState.status === "running" ? "Running..." : "Run doctor"}
+                    </button>
+                  )}
                 </div>
 
-                {doctorState.result && (
+                {appSettings.cliType === "gemini" && doctorState.result && (
                   <div
                     className={`settings-doctor ${doctorState.result.ok ? "ok" : "error"}`}
                   >
@@ -2733,95 +2842,291 @@ export function SettingsView({
                     </div>
                   </div>
                 )}
-              </div>
 
-                <div className="settings-field">
-                  <label className="settings-field-label" htmlFor="default-access">
-                    Default access mode
-                  </label>
-                  <select
-                    id="default-access"
-                    className="settings-select"
-                    value={appSettings.defaultAccessMode}
-                    onChange={(event) =>
-                      void onUpdateAppSettings({
-                        ...appSettings,
-                        defaultAccessMode: event.target.value as AppSettings["defaultAccessMode"],
-                      })
-                    }
-                  >
-                    <option value="read-only">Read only</option>
-                    <option value="current">On-request</option>
-                    <option value="full-access">Full access</option>
-                  </select>
-                </div>
-
-                <div className="settings-field">
-                  <label className="settings-field-label" htmlFor="backend-mode">
-                    Backend mode
-                  </label>
-                  <select
-                    id="backend-mode"
-                    className="settings-select"
-                    value={appSettings.backendMode}
-                    onChange={(event) =>
-                      void onUpdateAppSettings({
-                        ...appSettings,
-                        backendMode: event.target.value as AppSettings["backendMode"],
-                      })
-                    }
-                  >
-                    <option value="local">Local (default)</option>
-                    <option value="remote">Remote (daemon)</option>
-                  </select>
-                  <div className="settings-help">
-                    Remote mode connects to a separate daemon running the backend on another machine (e.g. WSL2/Linux).
-                  </div>
-                </div>
-
-                {appSettings.backendMode === "remote" && (
-                  <div className="settings-field">
-                    <div className="settings-field-label">Remote backend</div>
-                    <div className="settings-field-row">
-                      <input
-                        className="settings-input settings-input--compact"
-                        value={remoteHostDraft}
-                        placeholder="127.0.0.1:4732"
-                        onChange={(event) => setRemoteHostDraft(event.target.value)}
-                        onBlur={() => {
-                          void handleCommitRemoteHost();
-                        }}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            event.preventDefault();
-                            void handleCommitRemoteHost();
-                          }
-                        }}
-                        aria-label="Remote backend host"
-                      />
-                      <input
-                        type="password"
-                        className="settings-input settings-input--compact"
-                        value={remoteTokenDraft}
-                        placeholder="Token (optional)"
-                        onChange={(event) => setRemoteTokenDraft(event.target.value)}
-                        onBlur={() => {
-                          void handleCommitRemoteToken();
-                        }}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            event.preventDefault();
-                            void handleCommitRemoteToken();
-                          }
-                        }}
-                        aria-label="Remote backend token"
-                      />
+                {/* Cursor CLI specific settings */}
+                {appSettings.cliType === "cursor" && (
+                  <>
+                    <div className="settings-field">
+                      <label className="settings-field-label" htmlFor="cursor-mode">
+                        Default operating mode
+                      </label>
+                      <select
+                        id="cursor-mode"
+                        className="settings-select"
+                        value={appSettings.cursorDefaultMode}
+                        onChange={(event) =>
+                          void onUpdateAppSettings({
+                            ...appSettings,
+                            cursorDefaultMode: event.target.value as AppSettings["cursorDefaultMode"],
+                          })
+                        }
+                      >
+                        <option value="agent">Agent (full access)</option>
+                        <option value="plan">Plan (design before coding)</option>
+                        <option value="ask">Ask (read-only exploration)</option>
+                      </select>
+                      <div className="settings-help">
+                        Agent mode has full tool access. Plan mode helps design before coding. Ask mode is read-only.
+                      </div>
                     </div>
-                    <div className="settings-help">
-                      Start the daemon separately and point GeminiMonitor to it (host:port + token).
+
+                    <div className="settings-field">
+                      <label className="settings-field-label" htmlFor="cursor-output">
+                        Output format
+                      </label>
+                      <select
+                        id="cursor-output"
+                        className="settings-select"
+                        value={appSettings.cursorOutputFormat}
+                        onChange={(event) =>
+                          void onUpdateAppSettings({
+                            ...appSettings,
+                            cursorOutputFormat: event.target.value as AppSettings["cursorOutputFormat"],
+                          })
+                        }
+                      >
+                        <option value="text">Text (default)</option>
+                        <option value="json">JSON</option>
+                        <option value="stream-json">Stream JSON</option>
+                      </select>
+                      <div className="settings-help">
+                        Response format for CLI output. Use JSON or Stream JSON for scripts.
+                      </div>
                     </div>
-                  </div>
+
+                    <div className="settings-field">
+                      <div className="settings-field-label">Editor Settings</div>
+
+                      <div className="settings-toggle-row">
+                        <div>
+                          <div className="settings-toggle-title">Vim mode</div>
+                          <div className="settings-toggle-subtitle">
+                            Enable Vim keybindings in Cursor CLI.
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className={`settings-toggle ${appSettings.cursorVimMode ? "on" : ""}`}
+                          onClick={() =>
+                            void onUpdateAppSettings({
+                              ...appSettings,
+                              cursorVimMode: !appSettings.cursorVimMode,
+                            })
+                          }
+                          aria-pressed={appSettings.cursorVimMode}
+                        >
+                          <span className="settings-toggle-knob" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="settings-field">
+                      <div className="settings-field-label">Attribution Settings</div>
+
+                      <div className="settings-toggle-row">
+                        <div>
+                          <div className="settings-toggle-title">Attribute commits to agent</div>
+                          <div className="settings-toggle-subtitle">
+                            Add agent trailers to git commits.
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className={`settings-toggle ${appSettings.cursorAttributeCommits ? "on" : ""}`}
+                          onClick={() =>
+                            void onUpdateAppSettings({
+                              ...appSettings,
+                              cursorAttributeCommits: !appSettings.cursorAttributeCommits,
+                            })
+                          }
+                          aria-pressed={appSettings.cursorAttributeCommits}
+                        >
+                          <span className="settings-toggle-knob" />
+                        </button>
+                      </div>
+
+                      <div className="settings-toggle-row">
+                        <div>
+                          <div className="settings-toggle-title">Attribute PRs to agent</div>
+                          <div className="settings-toggle-subtitle">
+                            Add attribution footer to pull requests.
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className={`settings-toggle ${appSettings.cursorAttributePRs ? "on" : ""}`}
+                          onClick={() =>
+                            void onUpdateAppSettings({
+                              ...appSettings,
+                              cursorAttributePRs: !appSettings.cursorAttributePRs,
+                            })
+                          }
+                          aria-pressed={appSettings.cursorAttributePRs}
+                        >
+                          <span className="settings-toggle-knob" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="settings-field">
+                      <div className="settings-field-label">Network Settings</div>
+
+                      <div className="settings-toggle-row">
+                        <div>
+                          <div className="settings-toggle-title">Use HTTP/1.1 for agent</div>
+                          <div className="settings-toggle-subtitle">
+                            Enable for compatibility with enterprise proxies.
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className={`settings-toggle ${appSettings.cursorUseHttp1 ? "on" : ""}`}
+                          onClick={() =>
+                            void onUpdateAppSettings({
+                              ...appSettings,
+                              cursorUseHttp1: !appSettings.cursorUseHttp1,
+                            })
+                          }
+                          aria-pressed={appSettings.cursorUseHttp1}
+                        >
+                          <span className="settings-toggle-knob" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="settings-field">
+                      <div className="settings-field-label">Agent Skills</div>
+                      <div className="settings-help">
+                        Agent Skills provide dynamic capabilities the agent uses when relevant.
+                        Create a <code>SKILL.md</code> file with YAML frontmatter to define skills.
+                      </div>
+                      <div className="settings-help" style={{ marginTop: "8px" }}>
+                        <strong>Locations:</strong>
+                        <ul style={{ margin: "4px 0", paddingLeft: "20px" }}>
+                          <li><code>.cursor/skills/</code> - Project-level skills</li>
+                          <li><code>~/.cursor/skills/</code> - Global skills (available in all projects)</li>
+                        </ul>
+                      </div>
+                      <div className="settings-help" style={{ marginTop: "8px" }}>
+                        View and manage skills in Cursor Settings → Rules → &quot;Agent Decides&quot; section.
+                        Invoke manually with <code>/</code> in chat to search skills.
+                      </div>
+                    </div>
+
+                    <div className="settings-field">
+                      <div className="settings-field-label">Latest Features (January 2026)</div>
+                      <div className="settings-help">
+                        <ul style={{ margin: "8px 0", paddingLeft: "20px" }}>
+                          <li><strong>Plan Mode</strong> - Design approach before coding (<code>/plan</code> or <code>--mode=plan</code>)</li>
+                          <li><strong>Ask Mode</strong> - Read-only exploration (<code>/ask</code> or <code>--mode=ask</code>)</li>
+                          <li><strong>Cloud Handoff</strong> - Push conversations to Cloud Agent with <code>&amp;</code> prefix</li>
+                          <li><strong>Multi-Agent</strong> - Run parallel agents with automatic git worktree management</li>
+                          <li><strong>MCP Authentication</strong> - One-click auth with automatic callback handling</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="settings-field">
+                      <div className="settings-field-label">Beta Features</div>
+                      <div className="settings-help">
+                        Access beta features in Cursor Settings → Beta or use the keyboard shortcut:
+                        <br />
+                        <code>Cmd+Shift+J</code> (macOS) or <code>Ctrl+Shift+J</code> (Windows/Linux)
+                      </div>
+                    </div>
+                  </>
                 )}
+
+                {/* Gemini CLI specific settings */}
+                {appSettings.cliType === "gemini" && (
+                  <>
+                    <div className="settings-field">
+                      <label className="settings-field-label" htmlFor="default-access">
+                        Default access mode
+                      </label>
+                      <select
+                        id="default-access"
+                        className="settings-select"
+                        value={appSettings.defaultAccessMode}
+                        onChange={(event) =>
+                          void onUpdateAppSettings({
+                            ...appSettings,
+                            defaultAccessMode: event.target.value as AppSettings["defaultAccessMode"],
+                          })
+                        }
+                      >
+                        <option value="read-only">Read only</option>
+                        <option value="current">On-request</option>
+                        <option value="full-access">Full access</option>
+                      </select>
+                    </div>
+
+                    <div className="settings-field">
+                      <label className="settings-field-label" htmlFor="backend-mode">
+                        Backend mode
+                      </label>
+                      <select
+                        id="backend-mode"
+                        className="settings-select"
+                        value={appSettings.backendMode}
+                        onChange={(event) =>
+                          void onUpdateAppSettings({
+                            ...appSettings,
+                            backendMode: event.target.value as AppSettings["backendMode"],
+                          })
+                        }
+                      >
+                        <option value="local">Local (default)</option>
+                        <option value="remote">Remote (daemon)</option>
+                      </select>
+                      <div className="settings-help">
+                        Remote mode connects to a separate daemon running the backend on another machine (e.g. WSL2/Linux).
+                      </div>
+                    </div>
+
+                    {appSettings.backendMode === "remote" && (
+                      <div className="settings-field">
+                        <div className="settings-field-label">Remote backend</div>
+                        <div className="settings-field-row">
+                          <input
+                            className="settings-input settings-input--compact"
+                            value={remoteHostDraft}
+                            placeholder="127.0.0.1:4732"
+                            onChange={(event) => setRemoteHostDraft(event.target.value)}
+                            onBlur={() => {
+                              void handleCommitRemoteHost();
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
+                                void handleCommitRemoteHost();
+                              }
+                            }}
+                            aria-label="Remote backend host"
+                          />
+                          <input
+                            type="password"
+                            className="settings-input settings-input--compact"
+                            value={remoteTokenDraft}
+                            placeholder="Token (optional)"
+                            onChange={(event) => setRemoteTokenDraft(event.target.value)}
+                            onBlur={() => {
+                              void handleCommitRemoteToken();
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
+                                void handleCommitRemoteToken();
+                              }
+                            }}
+                            aria-label="Remote backend token"
+                          />
+                        </div>
+                        <div className="settings-help">
+                          Start the daemon separately and point GeminiMonitor to it (host:port + token).
+                        </div>
+                      </div>
+                    )}
 
                 <FileEditorCard
                   title="Global AGENTS.md"
@@ -3024,6 +3329,22 @@ export function SettingsView({
                   </div>
                   <div className="settings-help">
                     Token threshold for triggering context compression.
+                  </div>
+                </div>
+
+                <div className="settings-field">
+                  <div className="settings-field-label">Agent Skills (Experimental)</div>
+                  <div className="settings-help">
+                    Agent Skills are self-contained directories that package instructions and assets
+                    into discoverable capabilities. Unlike GEMINI.md, skills are on-demand expertise
+                    that Gemini activates when needed.
+                  </div>
+                  <div className="settings-help" style={{ marginTop: "8px" }}>
+                    Skills are located in <code>.gemini/skills/</code> (workspace) or <code>~/.gemini/skills/</code> (global).
+                    Enable via <code>/settings</code> → Preview Features → experimental.skills.
+                  </div>
+                  <div className="settings-help" style={{ marginTop: "8px" }}>
+                    <strong>Tip:</strong> Gemini CLI skills are compatible with Claude Code skills format!
                   </div>
                 </div>
 
@@ -3251,6 +3572,8 @@ export function SettingsView({
                     )}
                   </div>
                 </div>
+                </>
+                )}
 
               </section>
             )}
