@@ -26,3 +26,8 @@ dist-ssr
 CodexMonitor.zip
 .codex-worktrees/
 .codexmonitor/
+
+.npm-cache
+
+.venv
+test-results

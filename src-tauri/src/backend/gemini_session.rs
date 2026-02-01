@@ -1,21 +1,19 @@
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::env;
-use std::io::ErrorKind;
-use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::path::Path;
+use std::sync::atomic::AtomicU64;
 use std::sync::Arc;
-use std::time::Duration;
 
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::process::{Child, ChildStdin, Command};
-use tokio::sync::{mpsc, oneshot, Mutex};
-use tokio::time::timeout;
+use tokio::io::{AsyncBufReadExt, BufReader};
+use tokio::process::{Child, Command};
+use tokio::sync::{mpsc, Mutex};
 
 use crate::backend::events::{AppServerEvent, EventSink};
 use crate::types::WorkspaceEntry;
 
 /// Represents a conversation thread for Gemini
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub(crate) struct GeminiThread {
     pub(crate) id: String,
@@ -24,6 +22,7 @@ pub(crate) struct GeminiThread {
     pub(crate) messages: Vec<GeminiMessage>,
 }
 
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub(crate) struct GeminiMessage {
     pub(crate) role: String, // "user" or "assistant"
@@ -31,6 +30,7 @@ pub(crate) struct GeminiMessage {
 }
 
 /// Session that manages Gemini CLI interactions for a workspace
+#[allow(dead_code)]
 pub(crate) struct GeminiWorkspaceSession {
     pub(crate) entry: WorkspaceEntry,
     pub(crate) threads: Mutex<HashMap<String, GeminiThread>>,
@@ -40,6 +40,7 @@ pub(crate) struct GeminiWorkspaceSession {
     pub(crate) background_thread_callbacks: Mutex<HashMap<String, mpsc::UnboundedSender<Value>>>,
 }
 
+#[allow(dead_code)]
 impl GeminiWorkspaceSession {
     pub(crate) fn new(entry: WorkspaceEntry) -> Self {
         Self {
@@ -129,6 +130,7 @@ impl GeminiWorkspaceSession {
 }
 
 /// Build PATH environment with common binary locations
+#[allow(dead_code)]
 pub(crate) fn build_gemini_path_env(gemini_bin: Option<&str>) -> Option<String> {
     let mut paths: Vec<String> = env::var("PATH")
         .unwrap_or_default()
@@ -188,6 +190,7 @@ pub(crate) fn build_gemini_path_env(gemini_bin: Option<&str>) -> Option<String> 
 }
 
 /// Build a command for the Gemini CLI
+#[allow(dead_code)]
 pub(crate) fn build_gemini_command(gemini_bin: Option<String>) -> Command {
     let bin = gemini_bin
         .clone()
@@ -201,6 +204,7 @@ pub(crate) fn build_gemini_command(gemini_bin: Option<String>) -> Command {
 }
 
 /// Check if Gemini CLI is installed
+#[allow(dead_code)]
 pub(crate) async fn check_gemini_installation(
     gemini_bin: Option<String>,
 ) -> Result<Option<String>, String> {
@@ -255,6 +259,7 @@ pub(crate) async fn check_gemini_installation(
 }
 
 /// Spawn Gemini for a single turn and stream output
+#[allow(dead_code)]
 pub(crate) async fn spawn_gemini_turn<E: EventSink>(
     session: Arc<GeminiWorkspaceSession>,
     thread_id: String,
@@ -555,10 +560,11 @@ pub(crate) async fn spawn_gemini_turn<E: EventSink>(
 }
 
 /// Create a new workspace session (no persistent process needed)
+#[allow(dead_code)]
 pub(crate) async fn create_workspace_session<E: EventSink>(
     entry: WorkspaceEntry,
     default_gemini_bin: Option<String>,
-    client_version: String,
+    _client_version: String,
     event_sink: E,
 ) -> Result<Arc<GeminiWorkspaceSession>, String> {
     let gemini_bin = entry

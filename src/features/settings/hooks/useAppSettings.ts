@@ -28,7 +28,7 @@ const defaultSettings: AppSettings = {
   // Cursor CLI defaults
   cursorVimMode: false,
   cursorDefaultMode: "agent",
-  cursorOutputFormat: "text",
+  cursorOutputFormat: "stream-json",
   cursorAttributeCommits: true,
   cursorAttributePRs: true,
   cursorUseHttp1: false,
@@ -108,6 +108,13 @@ function normalizeAppSettings(settings: AppSettings): AppSettings {
       : normalizedTargets[0]?.id ?? DEFAULT_OPEN_APP_ID;
   const allowedCursorModes = new Set(["agent", "plan", "ask"]);
   const allowedCursorFormats = new Set(["text", "json", "stream-json"]);
+  const normalizedCursorFormat = allowedCursorFormats.has(settings.cursorOutputFormat)
+    ? settings.cursorOutputFormat
+    : "stream-json";
+  const cursorOutputFormat =
+    settings.cliType === "cursor" && normalizedCursorFormat === "text"
+      ? "stream-json"
+      : normalizedCursorFormat;
   return {
     ...settings,
     cliType: settings.cliType === "cursor" ? "cursor" : "gemini",
@@ -119,9 +126,7 @@ function normalizeAppSettings(settings: AppSettings): AppSettings {
     cursorDefaultMode: allowedCursorModes.has(settings.cursorDefaultMode)
       ? settings.cursorDefaultMode
       : "agent",
-    cursorOutputFormat: allowedCursorFormats.has(settings.cursorOutputFormat)
-      ? settings.cursorOutputFormat
-      : "text",
+    cursorOutputFormat,
     cursorAttributeCommits: settings.cursorAttributeCommits !== false,
     cursorAttributePRs: settings.cursorAttributePRs !== false,
     cursorUseHttp1: Boolean(settings.cursorUseHttp1),
