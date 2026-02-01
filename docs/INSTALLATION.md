@@ -9,6 +9,14 @@ Download the latest release from the [GitHub Releases](https://github.com/Dimill
 - **macOS**: Download the `.dmg` file, open it, and drag GeminiMonitor to your Applications folder
 - **Linux**: Download the `.AppImage` file, make it executable (`chmod +x`), and run it
 
+### macOS Onboarding (In-app)
+
+After installing, open GeminiMonitor and follow **Settings → Onboarding**:
+
+1. Install a supported CLI (Gemini CLI or Cursor CLI).
+2. Open **Settings → Gemini** to configure the CLI path and run the doctor check.
+3. Add your first project from the Projects sidebar.
+
 ## Building from Source
 
 ### Prerequisites

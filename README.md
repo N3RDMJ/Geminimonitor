@@ -74,7 +74,8 @@ npm run tauri:build  # Production (creates .app and .dmg)
 
 3. **Download GeminiMonitor** from the releases page and open it
 
-The app will detect the Gemini CLI automatically. If not found, you can configure the path in Settings → Run Doctor.
+The app will detect the Gemini CLI automatically. If not found, configure the path in Settings → Gemini
+or use Settings → Onboarding to run a doctor check.
 
 **Optional:**
 - Git CLI (for Git panel features)
@@ -95,6 +96,9 @@ npm run doctor
 ```
 
 ## Getting Started
+
+Open GeminiMonitor and follow Settings → Onboarding for macOS-specific setup, CLI verification, and
+first-project tips.
 
 Install dependencies:
 
