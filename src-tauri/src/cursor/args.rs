@@ -21,8 +21,8 @@ pub(crate) fn apply_cursor_args(command: &mut Command, value: Option<&str>) -> R
 }
 
 pub(crate) fn resolve_workspace_cursor_args(
-    entry: &WorkspaceEntry,
-    parent_entry: Option<&WorkspaceEntry>,
+    _entry: &WorkspaceEntry,
+    _parent_entry: Option<&WorkspaceEntry>,
     app_settings: Option<&AppSettings>,
 ) -> Option<String> {
     // Workspace-level args (future: could add cursor_args to WorkspaceSettings)
