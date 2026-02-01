@@ -5,7 +5,6 @@ use serde_json::Value;
 
 use crate::files::io::read_text_file_within;
 use crate::files::ops::write_with_policy;
-use crate::files::policy::{policy_for, FileKind, FileScope};
 
 /// Gemini CLI settings structure based on settings.json format
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -193,6 +192,7 @@ pub struct GeminiIdeSettings {
 }
 
 /// Read settings from the user's ~/.gemini/settings.json
+#[allow(dead_code)]
 pub fn read_user_settings() -> Result<Option<GeminiSettings>, String> {
     let Some(root) = resolve_default_gemini_home() else {
         return Ok(None);
@@ -201,6 +201,7 @@ pub fn read_user_settings() -> Result<Option<GeminiSettings>, String> {
 }
 
 /// Read settings from a project's .gemini/settings.json
+#[allow(dead_code)]
 pub fn read_project_settings(project_path: &Path) -> Result<Option<GeminiSettings>, String> {
     let settings_dir = project_path.join(".gemini");
     if !settings_dir.exists() {
@@ -210,6 +211,7 @@ pub fn read_project_settings(project_path: &Path) -> Result<Option<GeminiSetting
 }
 
 /// Write settings to the user's ~/.gemini/settings.json
+#[allow(dead_code)]
 pub fn write_user_settings(settings: &GeminiSettings) -> Result<(), String> {
     let Some(root) = resolve_default_gemini_home() else {
         return Err("Unable to resolve GEMINI_HOME".to_string());
@@ -228,6 +230,7 @@ pub fn read_settings_model(gemini_home: Option<PathBuf>) -> Result<Option<String
 }
 
 /// Get the path to settings.json
+#[allow(dead_code)]
 pub fn settings_json_path() -> Option<PathBuf> {
     resolve_default_gemini_home().map(|home| home.join("settings.json"))
 }
@@ -268,6 +271,7 @@ fn read_settings_from_root(root: &Path) -> Result<Option<GeminiSettings>, String
     Ok(Some(settings))
 }
 
+#[allow(dead_code)]
 fn write_settings_to_root(root: &Path, settings: &GeminiSettings) -> Result<(), String> {
     let policy = settings_policy()?;
     let content = serde_json::to_string_pretty(settings)
@@ -276,6 +280,7 @@ fn write_settings_to_root(root: &Path, settings: &GeminiSettings) -> Result<(), 
 }
 
 /// Merge project settings on top of user settings
+#[allow(dead_code)]
 pub fn merge_settings(
     user: Option<GeminiSettings>,
     project: Option<GeminiSettings>,

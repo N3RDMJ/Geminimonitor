@@ -2885,12 +2885,11 @@ export function SettingsView({
                           })
                         }
                       >
-                        <option value="text">Text (default)</option>
                         <option value="json">JSON</option>
                         <option value="stream-json">Stream JSON</option>
                       </select>
                       <div className="settings-help">
-                        Response format for CLI output. Use JSON or Stream JSON for scripts.
+                        Stream JSON is required for GeminiMonitor. JSON is supported for non-streaming output.
                       </div>
                     </div>
 

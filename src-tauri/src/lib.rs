@@ -44,6 +44,8 @@ pub fn run() {
             if window.label() != "main" {
                 return;
             }
+            #[cfg(not(target_os = "macos"))]
+            let _ = event;
             #[cfg(target_os = "macos")]
             if let WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
@@ -170,6 +172,8 @@ pub fn run() {
         .expect("error while running tauri application");
 
     app.run(|app_handle, event| {
+        #[cfg(not(target_os = "macos"))]
+        let _ = (app_handle, event);
         #[cfg(target_os = "macos")]
         if let RunEvent::Reopen { .. } = event {
             if let Some(window) = app_handle.get_webview_window("main") {

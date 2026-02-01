@@ -41,6 +41,7 @@
     "tauri-plugin-liquid-glass-api": "^0.1.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.1",
     "@tauri-apps/cli": "^2.9.6",
     "@testing-library/react": "^16.3.2",
     "@types/prismjs": "^1.26.5",
