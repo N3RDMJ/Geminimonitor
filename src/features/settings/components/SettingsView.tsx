@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ask, open } from "@tauri-apps/plugin-dialog";
-import { revealItemInDir } from "@tauri-apps/plugin-opener";
+import { openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
 import ChevronDown from "lucide-react/dist/esm/icons/chevron-down";
 import ChevronUp from "lucide-react/dist/esm/icons/chevron-up";
 import LayoutGrid from "lucide-react/dist/esm/icons/layout-grid";
 import SlidersHorizontal from "lucide-react/dist/esm/icons/sliders-horizontal";
+import Sparkles from "lucide-react/dist/esm/icons/sparkles";
 import Mic from "lucide-react/dist/esm/icons/mic";
 import Keyboard from "lucide-react/dist/esm/icons/keyboard";
 import Stethoscope from "lucide-react/dist/esm/icons/stethoscope";
@@ -56,6 +57,9 @@ const DICTATION_MODELS = [
   { id: "medium", label: "Medium", size: "1.5 GB", note: "High accuracy." },
   { id: "large-v3", label: "Large V3", size: "3.0 GB", note: "Best accuracy, heavy download." },
 ];
+
+const INSTALLATION_GUIDE_URL =
+  "https://github.com/N3RDMJ/Geminimonitor/blob/main/docs/INSTALLATION.md";
 
 type ComposerPreset = AppSettings["composerEditorPreset"];
 
@@ -172,6 +176,7 @@ export type SettingsViewProps = {
 };
 
 type SettingsSection =
+  | "onboarding"
   | "projects"
   | "display"
   | "composer"
@@ -1047,6 +1052,14 @@ export function SettingsView({
           <aside className="settings-sidebar">
             <button
               type="button"
+              className={`settings-nav ${activeSection === "onboarding" ? "active" : ""}`}
+              onClick={() => setActiveSection("onboarding")}
+            >
+              <Sparkles aria-hidden />
+              Onboarding
+            </button>
+            <button
+              type="button"
               className={`settings-nav ${activeSection === "projects" ? "active" : ""}`}
               onClick={() => setActiveSection("projects")}
             >
@@ -1119,6 +1132,100 @@ export function SettingsView({
             </button>
           </aside>
           <div className="settings-content">
+            {activeSection === "onboarding" && (
+              <section className="settings-section">
+                <div className="settings-section-title">Onboarding (macOS)</div>
+                <div className="settings-section-subtitle">
+                  Get set up quickly: install a CLI, verify the connection, and add your first
+                  project.
+                </div>
+                <div className="settings-onboarding-grid">
+                  <div className="settings-onboarding-card">
+                    <div className="settings-field-label">1. Install a CLI</div>
+                    <div className="settings-help">
+                      GeminiMonitor uses either the Gemini CLI or Cursor CLI. Make sure one is
+                      installed and available in your PATH.
+                    </div>
+                    <ul className="settings-onboarding-list">
+                      <li>
+                        <span className="settings-onboarding-label">Gemini CLI</span>
+                        <code>npm install -g @google/gemini-cli</code>
+                      </li>
+                      <li>
+                        <span className="settings-onboarding-label">Run once</span>
+                        <code>npx @google/gemini-cli</code>
+                      </li>
+                    </ul>
+                    <div className="settings-onboarding-actions">
+                      <button
+                        type="button"
+                        className="ghost settings-button-compact"
+                        onClick={() => void openUrl(INSTALLATION_GUIDE_URL)}
+                      >
+                        Open installation guide
+                      </button>
+                    </div>
+                  </div>
+                  <div className="settings-onboarding-card">
+                    <div className="settings-field-label">2. Configure &amp; verify</div>
+                    <div className="settings-help">
+                      Set CLI paths/args and confirm the agent can launch.
+                    </div>
+                    <div className="settings-onboarding-actions">
+                      <button
+                        type="button"
+                        className="ghost settings-button-compact"
+                        onClick={() => setActiveSection("gemini")}
+                      >
+                        Open CLI settings
+                      </button>
+                      {appSettings.cliType === "gemini" && (
+                        <button
+                          type="button"
+                          className="ghost settings-button-compact"
+                          onClick={handleRunDoctor}
+                          disabled={doctorState.status === "running"}
+                        >
+                          <Stethoscope aria-hidden />
+                          {doctorState.status === "running" ? "Running..." : "Run doctor"}
+                        </button>
+                      )}
+                    </div>
+                    {appSettings.cliType === "cursor" && (
+                      <div className="settings-help" style={{ marginTop: "8px" }}>
+                        Cursor requires Stream JSON output. GeminiMonitor enforces it when Cursor
+                        is selected.
+                      </div>
+                    )}
+                    {appSettings.cliType === "gemini" && doctorState.result && (
+                      <div
+                        className={`settings-onboarding-status ${doctorState.result.ok ? "ok" : "error"}`}
+                      >
+                        {doctorState.result.ok
+                          ? "Gemini doctor check passed."
+                          : "Gemini doctor check failed. Review CLI settings."}
+                      </div>
+                    )}
+                  </div>
+                  <div className="settings-onboarding-card">
+                    <div className="settings-field-label">3. Add your first project</div>
+                    <div className="settings-help">
+                      Create a workspace, then optionally set a worktree setup script (for example,
+                      <code>npm install</code>) to prep new worktrees automatically.
+                    </div>
+                    <div className="settings-onboarding-actions">
+                      <button
+                        type="button"
+                        className="ghost settings-button-compact"
+                        onClick={() => setActiveSection("projects")}
+                      >
+                        Open Projects
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
             {activeSection === "projects" && (
               <section className="settings-section">
                 <div className="settings-section-title">Projects</div>

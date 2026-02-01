@@ -146,6 +146,64 @@
   color: var(--text-subtle);
 }
 
+.settings-onboarding-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.settings-onboarding-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-muted);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-onboarding-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-subtle);
+}
+
+.settings-onboarding-label {
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-right: 6px;
+}
+
+.settings-onboarding-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.settings-onboarding-status {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-muted);
+  background: var(--surface-card);
+  font-size: 11px;
+  color: var(--text-strong);
+}
+
+.settings-onboarding-status.ok {
+  border-color: rgba(120, 235, 190, 0.4);
+}
+
+.settings-onboarding-status.error {
+  border-color: rgba(255, 120, 120, 0.45);
+}
+
 .settings-help-inline {
   margin-right: 4px;
 }
