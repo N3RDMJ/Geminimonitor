@@ -443,8 +443,11 @@ export function SettingsView({
   const skillItems = useMemo(
     () =>
       skills.map((skill) => {
+        const workspaceRoot = workspacePathPrefix ? `${workspacePathPrefix}/` : null;
         const scope =
-          workspacePathPrefix && skill.path.startsWith(workspacePathPrefix)
+          workspacePathPrefix &&
+          (skill.path === workspacePathPrefix ||
+            (workspaceRoot && skill.path.startsWith(workspaceRoot)))
             ? "workspace"
             : "global";
         return { ...skill, scope };
