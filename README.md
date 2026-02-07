@@ -1,6 +1,10 @@
 # GeminiMonitor
 
-![GeminiMonitor](screenshot.png)
+![Agent Monitor overview](docs/assets/readme-overview-v2.png)
+
+![CLI Backend settings](docs/assets/readme-cli-backend-v2.png)
+
+![Claude workspace overrides](docs/assets/readme-claude-overrides-v2.png)
 
 Agent Monitor is a Tauri app for orchestrating multiple agents across local workspaces. It provides a sidebar to manage projects, a home screen for quick actions, and a conversation view backed by the agent app-server protocol.
 
