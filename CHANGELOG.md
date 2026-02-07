@@ -8,6 +8,7 @@ All notable changes to this project are documented in this file.
 - Home dashboard title now uses `Agent Monitor` branding instead of `Codex Monitor`.
 - Home usage dashboard now supports a CLI filter (`All CLIs`, `Codex`, `Claude Code`, `Gemini CLI`, `Cursor CLI`) and refreshes metrics for the selected CLI scope.
 - Local usage backend snapshot command now accepts an optional CLI filter and classifies usage by model family so dashboard metrics can be scoped to a selected CLI.
+- Renamed remaining app metadata and release surfaces from `gemini-monitor`/`GeminiMonitor` to `agent-monitor`/`Agent Monitor` (npm package, Cargo package/lib, updater endpoint, docs, and DMG workflow artifact/app naming).
 - Restored upstream CodexMonitor layout primitives and shell surfaces (`Sidebar`, `Home`, design-system modal/panel/popover/toast primitives, DS token imports) to recover visual/interaction parity for Codex paths.
 - Restored upstream modular settings architecture (`SettingsNav` + section components) and re-applied active-CLI backend mapping through `cliBackend` utilities so Codex UI remains upstream-parity while Claude/Gemini/Cursor settings persist correctly.
 - Reintroduced upstream Orbit/remote backend settings/invoke surfaces and default app-setting fields (`remoteBackendProvider`, Orbit URLs/runner/auth fields, Tailscale wrappers) to avoid feature regressions during parity restoration.
@@ -21,7 +22,7 @@ All notable changes to this project are documented in this file.
 - Workspace session and clone defaults now resolve from the active CLI backend binary instead of being hardcoded to Codex.
 - `codex_doctor` now resolves fallback binary/args from the active CLI backend so Claude/Cursor/Gemini doctor checks use the selected tool defaults.
 - Workspace-level binary overrides are now stored per CLI backend (`codexBin`, `geminiBin`, `cursorBin`, `claudeBin`) and session spawn resolves the override for the active CLI instead of a single shared `codex_bin`.
-- Restored Rust build health for full `cargo check` by fixing crate entry references (`gemini_monitor_lib`) and aligning the legacy `gemini_monitor_daemon` bin with the maintained daemon implementation.
+- Restored Rust build health for full `cargo check` by fixing crate entry references and aligning the legacy daemon bin with the maintained daemon implementation.
 - Added neutral workspace CLI override command surface (`update_workspace_cli_bin`) while keeping `update_workspace_codex_bin` as a compatibility alias.
 - Doctor responses now include neutral CLI metadata (`cliType`, `cliBin`) while preserving existing `codexBin` fields for compatibility, and app-server failure details now reference the active/resolved CLI command.
 - Switching Active CLI in settings now refreshes workspace binary override drafts to the selected CLI’s stored value (so Claude/Codex overrides don’t leak into each other in the input draft).

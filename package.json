@@ -1,5 +1,5 @@
 {
-  "name": "gemini-monitor",
+  "name": "agent-monitor",
   "private": true,
   "version": "0.7.42",
   "type": "module",
