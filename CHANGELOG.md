@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 - Refreshed README app images with a new screenshot set (overview, CLI Backend, Claude overrides).
+- Refreshed README app images again with a distinct `v3` screenshot set for clearer visual differentiation.
 - Updated user-facing naming across app UI and docs to use `Agent` terminology instead of `Codex` where possible.
 - Updated website/docs links and branding copy to point to the current `N3RDMJ/Agentmonitor` repository.
 - Kept internal command/protocol identifiers stable (`codex_*`, `"codex"` tab key, and related IPC names) to avoid backend/frontend compatibility regressions during the transition.
