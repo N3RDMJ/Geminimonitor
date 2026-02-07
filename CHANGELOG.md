@@ -5,6 +5,9 @@ All notable changes to this project are documented in this file.
 ## Unreleased
 
 ### Changed
+- Home dashboard title now uses `Agent Monitor` branding instead of `Codex Monitor`.
+- Home usage dashboard now supports a CLI filter (`All CLIs`, `Codex`, `Claude Code`, `Gemini CLI`, `Cursor CLI`) and refreshes metrics for the selected CLI scope.
+- Local usage backend snapshot command now accepts an optional CLI filter and classifies usage by model family so dashboard metrics can be scoped to a selected CLI.
 - Restored upstream CodexMonitor layout primitives and shell surfaces (`Sidebar`, `Home`, design-system modal/panel/popover/toast primitives, DS token imports) to recover visual/interaction parity for Codex paths.
 - Restored upstream modular settings architecture (`SettingsNav` + section components) and re-applied active-CLI backend mapping through `cliBackend` utilities so Codex UI remains upstream-parity while Claude/Gemini/Cursor settings persist correctly.
 - Reintroduced upstream Orbit/remote backend settings/invoke surfaces and default app-setting fields (`remoteBackendProvider`, Orbit URLs/runner/auth fields, Tailscale wrappers) to avoid feature regressions during parity restoration.

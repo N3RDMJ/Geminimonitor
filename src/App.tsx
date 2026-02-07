@@ -111,6 +111,7 @@ import { useWorkspaceAgentMd } from "./features/workspaces/hooks/useWorkspaceAge
 import { pickWorkspacePath } from "./services/tauri";
 import type {
   AccessMode,
+  LocalUsageCliFilter,
   ComposerEditorSettings,
   ThreadListSortKey,
   WorkspaceInfo,
@@ -1130,6 +1131,17 @@ function MainApp() {
     });
   const [usageMetric, setUsageMetric] = useState<"tokens" | "time">("tokens");
   const [usageWorkspaceId, setUsageWorkspaceId] = useState<string | null>(null);
+  const [usageCliFilter, setUsageCliFilter] = useState<LocalUsageCliFilter>("all");
+  const usageCliOptions = useMemo(
+    () => [
+      { id: "all" as const, label: "All CLIs" },
+      { id: "codex" as const, label: "Codex" },
+      { id: "claude" as const, label: "Claude Code" },
+      { id: "gemini" as const, label: "Gemini CLI" },
+      { id: "cursor" as const, label: "Cursor CLI" },
+    ],
+    [],
+  );
   const usageWorkspaceOptions = useMemo(
     () =>
       workspaces.map((workspace) => {
@@ -1161,7 +1173,7 @@ function MainApp() {
     isLoading: isLoadingLocalUsage,
     error: localUsageError,
     refresh: refreshLocalUsage,
-  } = useLocalUsage(showHome, usageWorkspacePath);
+  } = useLocalUsage(showHome, usageWorkspacePath, usageCliFilter);
   const canInterrupt = activeThreadId
     ? threadStatusById[activeThreadId]?.isProcessing ?? false
     : false;
@@ -1915,6 +1927,9 @@ function MainApp() {
     usageWorkspaceId,
     usageWorkspaceOptions,
     onUsageWorkspaceChange: setUsageWorkspaceId,
+    usageCliFilter,
+    usageCliOptions,
+    onUsageCliFilterChange: setUsageCliFilter,
     onSelectHomeThread: (workspaceId, threadId) => {
       exitDiffView();
       clearDraftState();

@@ -6,6 +6,7 @@ import type {
   AppSettings,
   DictationModelStatus,
   DictationSessionState,
+  LocalUsageCliFilter,
   LocalUsageSnapshot,
   OrbitConnectTestResult,
   OrbitDeviceCodeStart,
@@ -467,10 +468,18 @@ export async function getGitHubPullRequestComments(
 export async function localUsageSnapshot(
   days?: number,
   workspacePath?: string | null,
+  cliType?: LocalUsageCliFilter | null,
 ): Promise<LocalUsageSnapshot> {
-  const payload: { days: number; workspacePath?: string } = { days: days ?? 30 };
+  const payload: {
+    days: number;
+    workspacePath?: string;
+    cliType?: Exclude<LocalUsageCliFilter, "all">;
+  } = { days: days ?? 30 };
   if (workspacePath) {
     payload.workspacePath = workspacePath;
+  }
+  if (cliType && cliType !== "all") {
+    payload.cliType = cliType;
   }
   return invoke("local_usage_snapshot", payload);
 }

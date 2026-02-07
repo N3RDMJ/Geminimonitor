@@ -39,6 +39,7 @@ import type {
   GitHubPullRequest,
   GitLogEntry,
   LocalUsageSnapshot,
+  LocalUsageCliFilter,
   ModelOption,
   OpenAppTarget,
   QueuedMessage,
@@ -200,6 +201,9 @@ type LayoutNodesOptions = {
   usageWorkspaceId: string | null;
   usageWorkspaceOptions: Array<{ id: string; label: string }>;
   onUsageWorkspaceChange: (workspaceId: string | null) => void;
+  usageCliFilter: LocalUsageCliFilter;
+  usageCliOptions: Array<{ id: LocalUsageCliFilter; label: string }>;
+  onUsageCliFilterChange: (value: LocalUsageCliFilter) => void;
   onSelectHomeThread: (workspaceId: string, threadId: string) => void;
   activeWorkspace: WorkspaceInfo | null;
   activeParentWorkspace: WorkspaceInfo | null;
@@ -674,6 +678,9 @@ export function useLayoutNodes(options: LayoutNodesOptions): LayoutNodesResult {
       usageWorkspaceId={options.usageWorkspaceId}
       usageWorkspaceOptions={options.usageWorkspaceOptions}
       onUsageWorkspaceChange={options.onUsageWorkspaceChange}
+      usageCliFilter={options.usageCliFilter}
+      usageCliOptions={options.usageCliOptions}
+      onUsageCliFilterChange={options.onUsageCliFilterChange}
       onSelectThread={options.onSelectHomeThread}
     />
   );
