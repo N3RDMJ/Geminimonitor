@@ -1,6 +1,11 @@
 {
   "upstreamRepo": "https://github.com/Dimillian/CodexMonitor.git",
   "upstreamRef": "main",
-  "pathSpecs": ["src/styles"],
+  "pathSpecs": [
+    "src/styles",
+    "src-tauri/src/codex",
+    "src-tauri/src/shared/codex_core.rs",
+    "src-tauri/src/shared/codex_aux_core.rs"
+  ],
   "allowDiffPaths": []
 }
