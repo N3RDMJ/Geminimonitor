@@ -5,6 +5,8 @@ All notable changes to this project are documented in this file.
 ## Unreleased
 
 ### Changed
+- Composer now surfaces queue vs steer behavior while an agent is processing: send button shows `Steer`/`Queue` only for explicit `Send`/`Queue` modes, and steer mode includes an inline `Tab`-to-queue hint.
+- Codex parity guardrails now explicitly allow `src/styles/composer.css` so fork-specific composer UX clarity updates do not fail upstream style parity checks.
 - Cursor CLI output format default is now `stream-json` (backend + settings fallback defaults) instead of `text` for new/legacy settings without an explicit Cursor format.
 - Release `latest.json` generation now points updater asset URLs at `N3RDMJ/Agentmonitor` instead of `Dimillian/CodexMonitor`.
 - Codex parity guardrails now explicitly allow fork-specific style divergences in `src/styles/sidebar.css` and `src/styles/mobile-setup-wizard.css`, preventing unrelated release PRs from failing parity CI.
