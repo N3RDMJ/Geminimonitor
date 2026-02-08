@@ -7,9 +7,10 @@ use tokio::sync::{mpsc, Mutex};
 use tokio::time::timeout;
 
 use crate::backend::app_server::{
-    build_codex_command_with_bin, build_codex_path_env, check_codex_installation, WorkspaceSession,
+    build_codex_command_with_bin, build_codex_path_env, check_cli_installation, WorkspaceSession,
 };
 use crate::shared::process_core::tokio_command;
+use crate::shared::workspaces_core::resolve_default_cli_bin;
 use crate::types::AppSettings;
 
 pub(crate) fn build_commit_message_prompt(diff: &str) -> String {
@@ -107,10 +108,24 @@ pub(crate) async fn codex_doctor_core(
     codex_bin: Option<String>,
     codex_args: Option<String>,
 ) -> Result<Value, String> {
-    let (default_bin, default_args) = {
+    let (cli_type, default_bin, default_args) = {
         let settings = app_settings.lock().await;
-        (settings.codex_bin.clone(), settings.codex_args.clone())
+        let default = resolve_default_cli_bin(&settings);
+        let args = match settings.cli_type.as_str() {
+            "gemini" => settings.gemini_args.clone(),
+            "cursor" => settings.cursor_args.clone(),
+            "claude" => settings.claude_args.clone(),
+            _ => settings.codex_args.clone(),
+        };
+        (settings.cli_type.clone(), default, args)
     };
+    let cli_name = match cli_type.as_str() {
+        "claude" => "Claude",
+        "gemini" => "Gemini",
+        "cursor" => "Cursor",
+        _ => "Codex",
+    };
+    let is_codex = cli_type.as_str() == "codex" || !["claude", "gemini", "cursor"].contains(&cli_type.as_str());
     let resolved = codex_bin
         .clone()
         .filter(|value| !value.trim().is_empty())
@@ -120,21 +135,34 @@ pub(crate) async fn codex_doctor_core(
         .filter(|value| !value.trim().is_empty())
         .or(default_args);
     let path_env = build_codex_path_env(resolved.as_deref());
-    let version = check_codex_installation(resolved.clone()).await?;
-    let mut command = build_codex_command_with_bin(
-        resolved.clone(),
-        resolved_args.as_deref(),
-        vec!["app-server".to_string(), "--help".to_string()],
-    )?;
-    command.stdout(std::process::Stdio::piped());
-    command.stderr(std::process::Stdio::piped());
-    let app_server_ok = match timeout(Duration::from_secs(5), command.output()).await {
-        Ok(result) => result
-            .map(|output| output.status.success())
-            .unwrap_or(false),
-        Err(_) => false,
+    let version = check_cli_installation(resolved.clone(), cli_name).await?;
+
+    let (app_server_ok, app_server_details) = if is_codex {
+        let mut command = build_codex_command_with_bin(
+            resolved.clone(),
+            resolved_args.as_deref(),
+            vec!["app-server".to_string(), "--help".to_string()],
+        )?;
+        command.stdout(std::process::Stdio::piped());
+        command.stderr(std::process::Stdio::piped());
+        let ok = match timeout(Duration::from_secs(5), command.output()).await {
+            Ok(result) => result
+                .map(|output| output.status.success())
+                .unwrap_or(false),
+            Err(_) => false,
+        };
+        let details = if ok {
+            None
+        } else {
+            let bin = resolved.as_deref().unwrap_or("codex");
+            Some(format!("Failed to run `{bin} app-server --help`."))
+        };
+        (ok, details)
+    } else {
+        (true, None)
     };
-    let (node_ok, node_version, node_details) = {
+
+    let (node_ok, node_version, node_details) = if is_codex {
         let mut node_command = tokio_command("node");
         if let Some(ref path_env) = path_env {
             node_command.env("PATH", path_env);
@@ -189,18 +217,16 @@ pub(crate) async fn codex_doctor_core(
                 Some("Timed out while checking Node.".to_string()),
             ),
         }
-    };
-    let details = if app_server_ok {
-        None
     } else {
-        Some("Failed to run `codex app-server --help`.".to_string())
+        (true, None, None)
     };
+
     Ok(json!({
         "ok": version.is_some() && app_server_ok,
         "codexBin": resolved,
         "version": version,
         "appServerOk": app_server_ok,
-        "details": details,
+        "details": app_server_details,
         "path": path_env,
         "nodeOk": node_ok,
         "nodeVersion": node_version,
