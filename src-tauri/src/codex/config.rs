@@ -28,15 +28,79 @@ pub(crate) fn read_apps_enabled() -> Result<Option<bool>, String> {
     read_feature_flag("apps")
 }
 
+pub(crate) fn read_shell_tool_enabled() -> Result<Option<bool>, String> {
+    read_feature_flag("shell_tool")
+}
+
+pub(crate) fn read_shell_snapshot_enabled() -> Result<Option<bool>, String> {
+    read_feature_flag("shell_snapshot")
+}
+
+pub(crate) fn read_apply_patch_freeform_enabled() -> Result<Option<bool>, String> {
+    read_feature_flag("apply_patch_freeform")
+}
+
+pub(crate) fn read_exec_policy_enabled() -> Result<Option<bool>, String> {
+    read_feature_flag("exec_policy")
+}
+
+pub(crate) fn read_smart_approvals_enabled() -> Result<Option<bool>, String> {
+    read_feature_flag("smart_approvals")
+}
+
+pub(crate) fn read_remote_compaction_enabled() -> Result<Option<bool>, String> {
+    read_feature_flag("remote_compaction")
+}
+
+pub(crate) fn read_experimental_windows_sandbox_enabled() -> Result<Option<bool>, String> {
+    read_feature_flag("experimental_windows_sandbox")
+}
+
+pub(crate) fn read_elevated_windows_sandbox_enabled() -> Result<Option<bool>, String> {
+    read_feature_flag("elevated_windows_sandbox")
+}
+
 pub(crate) fn read_personality() -> Result<Option<String>, String> {
-    let Some(root) = resolve_default_codex_home() else {
-        return Ok(None);
-    };
-    let contents = read_config_contents_from_root(&root)?;
-    Ok(contents
+    Ok(read_top_level_string_key("personality")?
         .as_deref()
-        .and_then(parse_personality_from_toml)
+        .and_then(normalize_personality_value)
         .map(|value| value.to_string()))
+}
+
+pub(crate) fn read_model() -> Result<Option<String>, String> {
+    read_top_level_string_key("model")
+}
+
+pub(crate) fn read_model_provider() -> Result<Option<String>, String> {
+    read_top_level_string_key("model_provider")
+}
+
+pub(crate) fn read_model_reasoning_effort() -> Result<Option<String>, String> {
+    read_top_level_string_key("model_reasoning_effort")
+}
+
+pub(crate) fn read_approval_policy() -> Result<Option<String>, String> {
+    read_top_level_string_key("approval_policy")
+}
+
+pub(crate) fn read_sandbox_mode() -> Result<Option<String>, String> {
+    read_top_level_string_key("sandbox_mode")
+}
+
+pub(crate) fn read_check_for_updates() -> Result<Option<bool>, String> {
+    read_top_level_bool_key("check_for_updates")
+}
+
+pub(crate) fn read_web_search() -> Result<Option<String>, String> {
+    read_top_level_string_key("web_search")
+}
+
+pub(crate) fn read_cli_auth_credentials_store() -> Result<Option<String>, String> {
+    read_top_level_string_key("cli_auth_credentials_store")
+}
+
+pub(crate) fn read_preferred_auth_method() -> Result<Option<String>, String> {
+    read_top_level_string_key("preferred_auth_method")
 }
 
 pub(crate) fn write_steer_enabled(enabled: bool) -> Result<(), String> {
@@ -59,7 +123,85 @@ pub(crate) fn write_apps_enabled(enabled: bool) -> Result<(), String> {
     write_feature_flag("apps", enabled)
 }
 
+pub(crate) fn write_shell_tool_enabled(enabled: bool) -> Result<(), String> {
+    write_feature_flag("shell_tool", enabled)
+}
+
+pub(crate) fn write_shell_snapshot_enabled(enabled: bool) -> Result<(), String> {
+    write_feature_flag("shell_snapshot", enabled)
+}
+
+pub(crate) fn write_apply_patch_freeform_enabled(enabled: bool) -> Result<(), String> {
+    write_feature_flag("apply_patch_freeform", enabled)
+}
+
+pub(crate) fn write_exec_policy_enabled(enabled: bool) -> Result<(), String> {
+    write_feature_flag("exec_policy", enabled)
+}
+
+pub(crate) fn write_smart_approvals_enabled(enabled: bool) -> Result<(), String> {
+    write_feature_flag("smart_approvals", enabled)
+}
+
+pub(crate) fn write_remote_compaction_enabled(enabled: bool) -> Result<(), String> {
+    write_feature_flag("remote_compaction", enabled)
+}
+
+pub(crate) fn write_experimental_windows_sandbox_enabled(enabled: bool) -> Result<(), String> {
+    write_feature_flag("experimental_windows_sandbox", enabled)
+}
+
+pub(crate) fn write_elevated_windows_sandbox_enabled(enabled: bool) -> Result<(), String> {
+    write_feature_flag("elevated_windows_sandbox", enabled)
+}
+
 pub(crate) fn write_personality(personality: &str) -> Result<(), String> {
+    write_top_level_string_key("personality", normalize_personality_value(personality))
+}
+
+pub(crate) fn write_model(model: Option<&str>) -> Result<(), String> {
+    write_top_level_string_key("model", normalize_trimmed_value(model))
+}
+
+pub(crate) fn write_model_provider(model_provider: Option<&str>) -> Result<(), String> {
+    write_top_level_string_key("model_provider", normalize_trimmed_value(model_provider))
+}
+
+pub(crate) fn write_model_reasoning_effort(value: &str) -> Result<(), String> {
+    write_top_level_string_key(
+        "model_reasoning_effort",
+        normalize_trimmed_value(Some(value)),
+    )
+}
+
+pub(crate) fn write_approval_policy(value: &str) -> Result<(), String> {
+    write_top_level_string_key("approval_policy", normalize_trimmed_value(Some(value)))
+}
+
+pub(crate) fn write_sandbox_mode(value: &str) -> Result<(), String> {
+    write_top_level_string_key("sandbox_mode", normalize_trimmed_value(Some(value)))
+}
+
+pub(crate) fn write_check_for_updates(enabled: bool) -> Result<(), String> {
+    write_top_level_bool_key("check_for_updates", enabled)
+}
+
+pub(crate) fn write_web_search(value: &str) -> Result<(), String> {
+    write_top_level_string_key("web_search", normalize_trimmed_value(Some(value)))
+}
+
+pub(crate) fn write_cli_auth_credentials_store(value: &str) -> Result<(), String> {
+    write_top_level_string_key(
+        "cli_auth_credentials_store",
+        normalize_trimmed_value(Some(value)),
+    )
+}
+
+pub(crate) fn write_preferred_auth_method(value: Option<&str>) -> Result<(), String> {
+    write_top_level_string_key("preferred_auth_method", normalize_trimmed_value(value))
+}
+
+fn write_top_level_string_key(key: &str, value: Option<&str>) -> Result<(), String> {
     let Some(root) = resolve_default_codex_home() else {
         return Ok(());
     };
@@ -77,10 +219,9 @@ pub(crate) fn write_personality(personality: &str) -> Result<(), String> {
     } else {
         String::new()
     };
-    let normalized = normalize_personality_value(personality);
-    let updated = match normalized {
-        Some(value) => upsert_top_level_string_key(&contents, "personality", value),
-        None => remove_top_level_key(&contents, "personality"),
+    let updated = match value {
+        Some(value) => upsert_top_level_string_key(&contents, key, value),
+        None => remove_top_level_key(&contents, key),
     };
     write_with_policy(&root, policy, &updated)
 }
@@ -114,6 +255,28 @@ fn write_feature_flag(key: &str, enabled: bool) -> Result<(), String> {
         String::new()
     };
     let updated = upsert_feature_flag(&contents, key, enabled);
+    write_with_policy(&root, policy, &updated)
+}
+
+fn write_top_level_bool_key(key: &str, value: bool) -> Result<(), String> {
+    let Some(root) = resolve_default_codex_home() else {
+        return Ok(());
+    };
+    let policy = config_policy()?;
+    let response = read_text_file_within(
+        &root,
+        policy.filename,
+        policy.root_may_be_missing,
+        policy.root_context,
+        policy.filename,
+        policy.allow_external_symlink_target,
+    )?;
+    let contents = if response.exists {
+        response.content
+    } else {
+        String::new()
+    };
+    let updated = upsert_top_level_bool_key(&contents, key, value);
     write_with_policy(&root, policy, &updated)
 }
 
@@ -156,13 +319,15 @@ fn read_config_contents_from_root(root: &Path) -> Result<Option<String>, String>
 
 fn read_config_model_from_root(root: &Path) -> Result<Option<String>, String> {
     let contents = read_config_contents_from_root(root)?;
-    Ok(contents.as_deref().and_then(parse_model_from_toml))
+    Ok(contents
+        .as_deref()
+        .and_then(|value| parse_top_level_string_from_toml(value, "model")))
 }
 
-fn parse_model_from_toml(contents: &str) -> Option<String> {
+fn parse_top_level_string_from_toml(contents: &str, key: &str) -> Option<String> {
     let parsed: TomlValue = toml::from_str(contents).ok()?;
-    let model = parsed.get("model")?.as_str()?;
-    let trimmed = model.trim();
+    let value = parsed.get(key)?.as_str()?;
+    let trimmed = value.trim();
     if trimmed.is_empty() {
         None
     } else {
@@ -170,10 +335,29 @@ fn parse_model_from_toml(contents: &str) -> Option<String> {
     }
 }
 
-fn parse_personality_from_toml(contents: &str) -> Option<&'static str> {
+fn parse_top_level_bool_from_toml(contents: &str, key: &str) -> Option<bool> {
     let parsed: TomlValue = toml::from_str(contents).ok()?;
-    let value = parsed.get("personality")?.as_str()?;
-    normalize_personality_value(value)
+    parsed.get(key)?.as_bool()
+}
+
+fn read_top_level_string_key(key: &str) -> Result<Option<String>, String> {
+    let Some(root) = resolve_default_codex_home() else {
+        return Ok(None);
+    };
+    let contents = read_config_contents_from_root(&root)?;
+    Ok(contents
+        .as_deref()
+        .and_then(|value| parse_top_level_string_from_toml(value, key)))
+}
+
+fn read_top_level_bool_key(key: &str) -> Result<Option<bool>, String> {
+    let Some(root) = resolve_default_codex_home() else {
+        return Ok(None);
+    };
+    let contents = read_config_contents_from_root(&root)?;
+    Ok(contents
+        .as_deref()
+        .and_then(|value| parse_top_level_bool_from_toml(value, key)))
 }
 
 fn normalize_personality_value(value: &str) -> Option<&'static str> {
@@ -182,6 +366,16 @@ fn normalize_personality_value(value: &str) -> Option<&'static str> {
         "pragmatic" => Some("pragmatic"),
         _ => None,
     }
+}
+
+fn normalize_trimmed_value(value: Option<&str>) -> Option<&str> {
+    value.map(str::trim).and_then(|trimmed| {
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(trimmed)
+        }
+    })
 }
 
 fn find_feature_flag(contents: &str, key: &str) -> Option<bool> {
@@ -307,6 +501,31 @@ fn upsert_top_level_string_key(contents: &str, key: &str, value: &str) -> String
     updated
 }
 
+fn upsert_top_level_bool_key(contents: &str, key: &str, value: bool) -> String {
+    let mut lines: Vec<String> = contents.lines().map(|line| line.to_string()).collect();
+    let table_start = first_table_start_index(&lines).unwrap_or(lines.len());
+    let replacement = format!("{key} = {}", if value { "true" } else { "false" });
+    let mut replaced = false;
+
+    for line in lines.iter_mut().take(table_start) {
+        if is_key_value_for(line, key) {
+            *line = replacement.clone();
+            replaced = true;
+            break;
+        }
+    }
+
+    if !replaced {
+        lines.insert(table_start, replacement);
+    }
+
+    let mut updated = lines.join("\n");
+    if contents.ends_with('\n') || updated.is_empty() {
+        updated.push('\n');
+    }
+    updated
+}
+
 fn is_key_value_for(line: &str, key: &str) -> bool {
     let trimmed = line.trim();
     if trimmed.is_empty() || trimmed.starts_with('#') {
@@ -342,20 +561,29 @@ impl<T> RetainWithIndex<T> for Vec<T> {
 
 #[cfg(test)]
 mod tests {
-    use super::{parse_personality_from_toml, remove_top_level_key, upsert_top_level_string_key};
+    use super::{
+        normalize_personality_value, parse_top_level_string_from_toml, remove_top_level_key,
+        upsert_top_level_string_key,
+    };
 
     #[test]
     fn parse_personality_reads_supported_values() {
         assert_eq!(
-            parse_personality_from_toml("personality = \"friendly\"\n"),
+            parse_top_level_string_from_toml("personality = \"friendly\"\n", "personality")
+                .as_deref()
+                .and_then(normalize_personality_value),
             Some("friendly")
         );
         assert_eq!(
-            parse_personality_from_toml("personality = \"pragmatic\"\n"),
+            parse_top_level_string_from_toml("personality = \"pragmatic\"\n", "personality")
+                .as_deref()
+                .and_then(normalize_personality_value),
             Some("pragmatic")
         );
         assert_eq!(
-            parse_personality_from_toml("personality = \"unknown\"\n"),
+            parse_top_level_string_from_toml("personality = \"unknown\"\n", "personality")
+                .as_deref()
+                .and_then(normalize_personality_value),
             None
         );
     }
