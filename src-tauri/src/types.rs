@@ -355,11 +355,20 @@ pub(crate) struct AppSettings {
     pub(crate) cursor_vim_mode: bool,
     #[serde(default = "default_cursor_default_mode", rename = "cursorDefaultMode")]
     pub(crate) cursor_default_mode: String,
-    #[serde(default = "default_cursor_output_format", rename = "cursorOutputFormat")]
+    #[serde(
+        default = "default_cursor_output_format",
+        rename = "cursorOutputFormat"
+    )]
     pub(crate) cursor_output_format: String,
-    #[serde(default = "default_cursor_attribute_commits", rename = "cursorAttributeCommits")]
+    #[serde(
+        default = "default_cursor_attribute_commits",
+        rename = "cursorAttributeCommits"
+    )]
     pub(crate) cursor_attribute_commits: bool,
-    #[serde(default = "default_cursor_attribute_prs", rename = "cursorAttributePRs")]
+    #[serde(
+        default = "default_cursor_attribute_prs",
+        rename = "cursorAttributePRs"
+    )]
     pub(crate) cursor_attribute_prs: bool,
     #[serde(default = "default_cursor_use_http1", rename = "cursorUseHttp1")]
     pub(crate) cursor_use_http1: bool,
@@ -371,7 +380,10 @@ pub(crate) struct AppSettings {
     pub(crate) remote_backend_token: Option<String>,
     #[serde(default = "default_access_mode", rename = "defaultAccessMode")]
     pub(crate) default_access_mode: String,
-    #[serde(default = "default_review_delivery_mode", rename = "reviewDeliveryMode")]
+    #[serde(
+        default = "default_review_delivery_mode",
+        rename = "reviewDeliveryMode"
+    )]
     pub(crate) review_delivery_mode: String,
     #[serde(
         default = "default_composer_model_shortcut",
@@ -460,7 +472,10 @@ pub(crate) struct AppSettings {
     pub(crate) ui_scale: f64,
     #[serde(default = "default_theme", rename = "theme")]
     pub(crate) theme: String,
-    #[serde(default = "default_usage_show_remaining", rename = "usageShowRemaining")]
+    #[serde(
+        default = "default_usage_show_remaining",
+        rename = "usageShowRemaining"
+    )]
     pub(crate) usage_show_remaining: bool,
     #[serde(default = "default_ui_font_family", rename = "uiFontFamily")]
     pub(crate) ui_font_family: String,
@@ -513,39 +528,124 @@ pub(crate) struct AppSettings {
     )]
     pub(crate) experimental_apps_enabled: bool,
     #[serde(
-        default = "default_personality",
-        rename = "personality"
+        default = "default_codex_shell_tool_enabled",
+        rename = "codexShellToolEnabled"
     )]
+    pub(crate) codex_shell_tool_enabled: bool,
+    #[serde(
+        default = "default_codex_shell_snapshot_enabled",
+        rename = "codexShellSnapshotEnabled"
+    )]
+    pub(crate) codex_shell_snapshot_enabled: bool,
+    #[serde(
+        default = "default_codex_apply_patch_freeform_enabled",
+        rename = "codexApplyPatchFreeformEnabled"
+    )]
+    pub(crate) codex_apply_patch_freeform_enabled: bool,
+    #[serde(
+        default = "default_codex_exec_policy_enabled",
+        rename = "codexExecPolicyEnabled"
+    )]
+    pub(crate) codex_exec_policy_enabled: bool,
+    #[serde(
+        default = "default_codex_smart_approvals_enabled",
+        rename = "codexSmartApprovalsEnabled"
+    )]
+    pub(crate) codex_smart_approvals_enabled: bool,
+    #[serde(
+        default = "default_codex_remote_compaction_enabled",
+        rename = "codexRemoteCompactionEnabled"
+    )]
+    pub(crate) codex_remote_compaction_enabled: bool,
+    #[serde(
+        default = "default_codex_experimental_windows_sandbox_enabled",
+        rename = "codexExperimentalWindowsSandboxEnabled"
+    )]
+    pub(crate) codex_experimental_windows_sandbox_enabled: bool,
+    #[serde(
+        default = "default_codex_elevated_windows_sandbox_enabled",
+        rename = "codexElevatedWindowsSandboxEnabled"
+    )]
+    pub(crate) codex_elevated_windows_sandbox_enabled: bool,
+    #[serde(default, rename = "codexModel")]
+    pub(crate) codex_model: Option<String>,
+    #[serde(default, rename = "codexModelProvider")]
+    pub(crate) codex_model_provider: Option<String>,
+    #[serde(
+        default = "default_codex_model_reasoning_effort",
+        rename = "codexModelReasoningEffort"
+    )]
+    pub(crate) codex_model_reasoning_effort: String,
+    #[serde(
+        default = "default_codex_approval_policy",
+        rename = "codexApprovalPolicy"
+    )]
+    pub(crate) codex_approval_policy: String,
+    #[serde(default = "default_codex_sandbox_mode", rename = "codexSandboxMode")]
+    pub(crate) codex_sandbox_mode: String,
+    #[serde(
+        default = "default_codex_check_for_updates",
+        rename = "codexCheckForUpdates"
+    )]
+    pub(crate) codex_check_for_updates: bool,
+    #[serde(default = "default_codex_web_search", rename = "codexWebSearch")]
+    pub(crate) codex_web_search: String,
+    #[serde(
+        default = "default_codex_cli_auth_credentials_store",
+        rename = "codexCliAuthCredentialsStore"
+    )]
+    pub(crate) codex_cli_auth_credentials_store: String,
+    #[serde(default, rename = "codexPreferredAuthMethod")]
+    pub(crate) codex_preferred_auth_method: Option<String>,
+    #[serde(default = "default_personality", rename = "personality")]
     pub(crate) personality: String,
     #[serde(default = "default_dictation_enabled", rename = "dictationEnabled")]
     pub(crate) dictation_enabled: bool,
-    #[serde(
-        default = "default_dictation_model_id",
-        rename = "dictationModelId"
-    )]
+    #[serde(default = "default_dictation_model_id", rename = "dictationModelId")]
     pub(crate) dictation_model_id: String,
     #[serde(default, rename = "dictationPreferredLanguage")]
     pub(crate) dictation_preferred_language: Option<String>,
-    #[serde(
-        default = "default_dictation_hold_key",
-        rename = "dictationHoldKey"
-    )]
+    #[serde(default = "default_dictation_hold_key", rename = "dictationHoldKey")]
     pub(crate) dictation_hold_key: String,
-    #[serde(default = "default_composer_editor_preset", rename = "composerEditorPreset")]
+    #[serde(
+        default = "default_composer_editor_preset",
+        rename = "composerEditorPreset"
+    )]
     pub(crate) composer_editor_preset: String,
-    #[serde(default = "default_composer_fence_expand_on_space", rename = "composerFenceExpandOnSpace")]
+    #[serde(
+        default = "default_composer_fence_expand_on_space",
+        rename = "composerFenceExpandOnSpace"
+    )]
     pub(crate) composer_fence_expand_on_space: bool,
-    #[serde(default = "default_composer_fence_expand_on_enter", rename = "composerFenceExpandOnEnter")]
+    #[serde(
+        default = "default_composer_fence_expand_on_enter",
+        rename = "composerFenceExpandOnEnter"
+    )]
     pub(crate) composer_fence_expand_on_enter: bool,
-    #[serde(default = "default_composer_fence_language_tags", rename = "composerFenceLanguageTags")]
+    #[serde(
+        default = "default_composer_fence_language_tags",
+        rename = "composerFenceLanguageTags"
+    )]
     pub(crate) composer_fence_language_tags: bool,
-    #[serde(default = "default_composer_fence_wrap_selection", rename = "composerFenceWrapSelection")]
+    #[serde(
+        default = "default_composer_fence_wrap_selection",
+        rename = "composerFenceWrapSelection"
+    )]
     pub(crate) composer_fence_wrap_selection: bool,
-    #[serde(default = "default_composer_fence_auto_wrap_paste_multiline", rename = "composerFenceAutoWrapPasteMultiline")]
+    #[serde(
+        default = "default_composer_fence_auto_wrap_paste_multiline",
+        rename = "composerFenceAutoWrapPasteMultiline"
+    )]
     pub(crate) composer_fence_auto_wrap_paste_multiline: bool,
-    #[serde(default = "default_composer_fence_auto_wrap_paste_code_like", rename = "composerFenceAutoWrapPasteCodeLike")]
+    #[serde(
+        default = "default_composer_fence_auto_wrap_paste_code_like",
+        rename = "composerFenceAutoWrapPasteCodeLike"
+    )]
     pub(crate) composer_fence_auto_wrap_paste_code_like: bool,
-    #[serde(default = "default_composer_list_continuation", rename = "composerListContinuation")]
+    #[serde(
+        default = "default_composer_list_continuation",
+        rename = "composerListContinuation"
+    )]
     pub(crate) composer_list_continuation: bool,
     #[serde(
         default = "default_composer_code_block_copy_use_modifier",
@@ -678,7 +778,11 @@ fn default_composer_collaboration_shortcut() -> Option<String> {
 }
 
 fn default_new_agent_shortcut() -> Option<String> {
-    let value = if cfg!(target_os = "macos") { "cmd+n" } else { "ctrl+n" };
+    let value = if cfg!(target_os = "macos") {
+        "cmd+n"
+    } else {
+        "ctrl+n"
+    };
     Some(value.to_string())
 }
 
@@ -815,6 +919,62 @@ fn default_unified_exec_enabled() -> bool {
 
 fn default_experimental_apps_enabled() -> bool {
     false
+}
+
+fn default_codex_shell_tool_enabled() -> bool {
+    true
+}
+
+fn default_codex_shell_snapshot_enabled() -> bool {
+    false
+}
+
+fn default_codex_apply_patch_freeform_enabled() -> bool {
+    true
+}
+
+fn default_codex_exec_policy_enabled() -> bool {
+    true
+}
+
+fn default_codex_smart_approvals_enabled() -> bool {
+    true
+}
+
+fn default_codex_remote_compaction_enabled() -> bool {
+    false
+}
+
+fn default_codex_experimental_windows_sandbox_enabled() -> bool {
+    false
+}
+
+fn default_codex_elevated_windows_sandbox_enabled() -> bool {
+    false
+}
+
+fn default_codex_model_reasoning_effort() -> String {
+    "medium".to_string()
+}
+
+fn default_codex_approval_policy() -> String {
+    "on-request".to_string()
+}
+
+fn default_codex_sandbox_mode() -> String {
+    "workspace-write".to_string()
+}
+
+fn default_codex_check_for_updates() -> bool {
+    true
+}
+
+fn default_codex_web_search() -> String {
+    "live".to_string()
+}
+
+fn default_codex_cli_auth_credentials_store() -> String {
+    "auto".to_string()
 }
 
 fn default_personality() -> String {
@@ -1050,6 +1210,25 @@ impl Default for AppSettings {
             steer_enabled: true,
             unified_exec_enabled: true,
             experimental_apps_enabled: false,
+            codex_shell_tool_enabled: default_codex_shell_tool_enabled(),
+            codex_shell_snapshot_enabled: default_codex_shell_snapshot_enabled(),
+            codex_apply_patch_freeform_enabled: default_codex_apply_patch_freeform_enabled(),
+            codex_exec_policy_enabled: default_codex_exec_policy_enabled(),
+            codex_smart_approvals_enabled: default_codex_smart_approvals_enabled(),
+            codex_remote_compaction_enabled: default_codex_remote_compaction_enabled(),
+            codex_experimental_windows_sandbox_enabled:
+                default_codex_experimental_windows_sandbox_enabled(),
+            codex_elevated_windows_sandbox_enabled: default_codex_elevated_windows_sandbox_enabled(
+            ),
+            codex_model: None,
+            codex_model_provider: None,
+            codex_model_reasoning_effort: default_codex_model_reasoning_effort(),
+            codex_approval_policy: default_codex_approval_policy(),
+            codex_sandbox_mode: default_codex_sandbox_mode(),
+            codex_check_for_updates: default_codex_check_for_updates(),
+            codex_web_search: default_codex_web_search(),
+            codex_cli_auth_credentials_store: default_codex_cli_auth_credentials_store(),
+            codex_preferred_auth_method: None,
             personality: default_personality(),
             dictation_enabled: false,
             dictation_model_id: default_dictation_model_id(),
@@ -1060,8 +1239,10 @@ impl Default for AppSettings {
             composer_fence_expand_on_enter: default_composer_fence_expand_on_enter(),
             composer_fence_language_tags: default_composer_fence_language_tags(),
             composer_fence_wrap_selection: default_composer_fence_wrap_selection(),
-            composer_fence_auto_wrap_paste_multiline: default_composer_fence_auto_wrap_paste_multiline(),
-            composer_fence_auto_wrap_paste_code_like: default_composer_fence_auto_wrap_paste_code_like(),
+            composer_fence_auto_wrap_paste_multiline:
+                default_composer_fence_auto_wrap_paste_multiline(),
+            composer_fence_auto_wrap_paste_code_like:
+                default_composer_fence_auto_wrap_paste_code_like(),
             composer_list_continuation: default_composer_list_continuation(),
             composer_code_block_copy_use_modifier: default_composer_code_block_copy_use_modifier(),
             workspace_groups: default_workspace_groups(),
@@ -1100,7 +1281,11 @@ mod tests {
         assert!(settings.remote_backend_token.is_none());
         assert_eq!(settings.default_access_mode, "current");
         assert_eq!(settings.review_delivery_mode, "inline");
-        let expected_primary = if cfg!(target_os = "macos") { "cmd" } else { "ctrl" };
+        let expected_primary = if cfg!(target_os = "macos") {
+            "cmd"
+        } else {
+            "ctrl"
+        };
         let expected_model = format!("{expected_primary}+shift+m");
         let expected_access = format!("{expected_primary}+shift+a");
         let expected_reasoning = format!("{expected_primary}+shift+r");
@@ -1127,7 +1312,10 @@ mod tests {
         } else {
             "ctrl+shift+c"
         };
-        assert_eq!(settings.interrupt_shortcut.as_deref(), Some(expected_interrupt));
+        assert_eq!(
+            settings.interrupt_shortcut.as_deref(),
+            Some(expected_interrupt)
+        );
         assert_eq!(
             settings.archive_thread_shortcut.as_deref(),
             Some(if cfg!(target_os = "macos") {
@@ -1192,6 +1380,23 @@ mod tests {
         assert!(settings.steer_enabled);
         assert!(settings.unified_exec_enabled);
         assert!(!settings.experimental_apps_enabled);
+        assert!(settings.codex_shell_tool_enabled);
+        assert!(!settings.codex_shell_snapshot_enabled);
+        assert!(settings.codex_apply_patch_freeform_enabled);
+        assert!(settings.codex_exec_policy_enabled);
+        assert!(settings.codex_smart_approvals_enabled);
+        assert!(!settings.codex_remote_compaction_enabled);
+        assert!(!settings.codex_experimental_windows_sandbox_enabled);
+        assert!(!settings.codex_elevated_windows_sandbox_enabled);
+        assert!(settings.codex_model.is_none());
+        assert!(settings.codex_model_provider.is_none());
+        assert_eq!(settings.codex_model_reasoning_effort, "medium");
+        assert_eq!(settings.codex_approval_policy, "on-request");
+        assert_eq!(settings.codex_sandbox_mode, "workspace-write");
+        assert!(settings.codex_check_for_updates);
+        assert_eq!(settings.codex_web_search, "live");
+        assert_eq!(settings.codex_cli_auth_credentials_store, "auto");
+        assert!(settings.codex_preferred_auth_method.is_none());
         assert_eq!(settings.personality, "friendly");
         assert!(!settings.dictation_enabled);
         assert_eq!(settings.dictation_model_id, "base");
@@ -1243,14 +1448,23 @@ mod tests {
         assert_eq!(settings.cli_type, "claude");
         assert_eq!(settings.codex_bin.as_deref(), Some("/usr/local/bin/codex"));
         assert_eq!(settings.codex_args.as_deref(), Some("--profile codex"));
-        assert_eq!(settings.gemini_bin.as_deref(), Some("/usr/local/bin/gemini"));
+        assert_eq!(
+            settings.gemini_bin.as_deref(),
+            Some("/usr/local/bin/gemini")
+        );
         assert_eq!(settings.gemini_args.as_deref(), Some("--profile gemini"));
-        assert_eq!(settings.cursor_bin.as_deref(), Some("/usr/local/bin/cursor"));
+        assert_eq!(
+            settings.cursor_bin.as_deref(),
+            Some("/usr/local/bin/cursor")
+        );
         assert_eq!(
             settings.cursor_args.as_deref(),
             Some("--output-format stream-json")
         );
-        assert_eq!(settings.claude_bin.as_deref(), Some("/usr/local/bin/claude"));
+        assert_eq!(
+            settings.claude_bin.as_deref(),
+            Some("/usr/local/bin/claude")
+        );
         assert_eq!(settings.claude_args.as_deref(), Some("--model sonnet"));
         assert!(settings.cursor_vim_mode);
         assert_eq!(settings.cursor_default_mode, "plan");
@@ -1316,10 +1530,9 @@ mod tests {
 
     #[test]
     fn workspace_entry_defaults_from_minimal_json() {
-        let entry: WorkspaceEntry = serde_json::from_str(
-            r#"{"id":"1","name":"Test","path":"/tmp","codexBin":null}"#,
-        )
-        .expect("workspace deserialize");
+        let entry: WorkspaceEntry =
+            serde_json::from_str(r#"{"id":"1","name":"Test","path":"/tmp","codexBin":null}"#)
+                .expect("workspace deserialize");
         assert!(matches!(entry.kind, WorkspaceKind::Main));
         assert!(entry.parent_id.is_none());
         assert!(entry.worktree.is_none());

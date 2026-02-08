@@ -19,6 +19,11 @@ import { getDefaultInterruptShortcut, isMacPlatform } from "../../../utils/short
 
 const allowedThemes = new Set(["system", "light", "dark", "dim"]);
 const allowedPersonality = new Set(["friendly", "pragmatic"]);
+const allowedModelReasoningEffort = new Set(["minimal", "low", "medium", "high"]);
+const allowedApprovalPolicy = new Set(["untrusted", "on-failure", "on-request", "never"]);
+const allowedSandboxMode = new Set(["read-only", "workspace-write", "danger-full-access"]);
+const allowedWebSearch = new Set(["cached", "live"]);
+const allowedCliAuthCredentialsStore = new Set(["file", "keyring", "auto"]);
 
 function buildDefaultSettings(): AppSettings {
   const isMac = isMacPlatform();
@@ -87,6 +92,23 @@ function buildDefaultSettings(): AppSettings {
     steerEnabled: true,
     unifiedExecEnabled: true,
     experimentalAppsEnabled: false,
+    codexShellToolEnabled: true,
+    codexShellSnapshotEnabled: false,
+    codexApplyPatchFreeformEnabled: true,
+    codexExecPolicyEnabled: true,
+    codexSmartApprovalsEnabled: true,
+    codexRemoteCompactionEnabled: false,
+    codexExperimentalWindowsSandboxEnabled: false,
+    codexElevatedWindowsSandboxEnabled: false,
+    codexModel: null,
+    codexModelProvider: null,
+    codexModelReasoningEffort: "medium",
+    codexApprovalPolicy: "on-request",
+    codexSandboxMode: "workspace-write",
+    codexCheckForUpdates: true,
+    codexWebSearch: "live",
+    codexCliAuthCredentialsStore: "auto",
+    codexPreferredAuthMethod: null,
     personality: "friendly",
     dictationEnabled: false,
     dictationModelId: "base",
@@ -167,6 +189,31 @@ function normalizeAppSettings(settings: AppSettings): AppSettings {
     personality: allowedPersonality.has(settings.personality)
       ? settings.personality
       : "friendly",
+    codexModel: settings.codexModel?.trim() ? settings.codexModel.trim() : null,
+    codexModelProvider: settings.codexModelProvider?.trim()
+      ? settings.codexModelProvider.trim()
+      : null,
+    codexModelReasoningEffort: allowedModelReasoningEffort.has(settings.codexModelReasoningEffort)
+      ? settings.codexModelReasoningEffort
+      : "medium",
+    codexApprovalPolicy: allowedApprovalPolicy.has(settings.codexApprovalPolicy)
+      ? settings.codexApprovalPolicy
+      : "on-request",
+    codexSandboxMode: allowedSandboxMode.has(settings.codexSandboxMode)
+      ? settings.codexSandboxMode
+      : "workspace-write",
+    codexCheckForUpdates: settings.codexCheckForUpdates !== false,
+    codexWebSearch: allowedWebSearch.has(settings.codexWebSearch)
+      ? settings.codexWebSearch
+      : "live",
+    codexCliAuthCredentialsStore: allowedCliAuthCredentialsStore.has(
+      settings.codexCliAuthCredentialsStore,
+    )
+      ? settings.codexCliAuthCredentialsStore
+      : "auto",
+    codexPreferredAuthMethod: settings.codexPreferredAuthMethod?.trim()
+      ? settings.codexPreferredAuthMethod.trim()
+      : null,
     reviewDeliveryMode:
       settings.reviewDeliveryMode === "detached" ? "detached" : "inline",
     openAppTargets: normalizedTargets,

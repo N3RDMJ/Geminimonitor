@@ -34,6 +34,7 @@ All notable changes to this project are documented in this file.
 - Added a Codex upstream parity CI guardrail (`npm run check:codex-parity`) to fail PRs when tracked Codex visual paths diverge from upstream.
 - Restored the shared Codex Rust core (`src-tauri/src/codex/*` and `src-tauri/src/shared/codex_core.rs`) to upstream parity and reintroduced `codex_aux_core` wiring needed by upstream Codex command flows.
 - Extracted Settings CLI backend mapping logic into `src/features/settings/utils/cliBackend.ts` so multi-model behavior is isolated from the Settings view component for parity-oriented refactors.
+- Expanded structured Codex `config.toml` settings coverage in app settings sync/UI (model write, provider/reasoning/search/auth/update policy keys plus additional `[features]` flags), while keeping raw TOML editing available for advanced unmanaged sections.
 
 ### Added
 - Added this root-level changelog to track ongoing work in canonical form.
