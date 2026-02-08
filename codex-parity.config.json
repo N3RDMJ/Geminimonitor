@@ -8,7 +8,6 @@
     "src-tauri/src/shared/codex_aux_core.rs"
   ],
   "allowDiffPaths": [
-    "src-tauri/src/codex/mod.rs",
     "src/styles/base.css",
     "src/styles/compact-base.css",
     "src/styles/compact-phone.css",
@@ -17,7 +16,6 @@
     "src/styles/mobile-setup-wizard.css",
     "src/styles/settings.css",
     "src/styles/sidebar.css",
-    "src/styles/tabbar.css",
-    "src-tauri/src/codex/mod.rs"
+    "src/styles/tabbar.css"
   ]
 }
