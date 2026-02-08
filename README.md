@@ -1,7 +1,5 @@
 # AgentMonitor
 
-![AgentMonitor home](docs/images/app-home.png)
-![AgentMonitor CLI Backend settings](docs/images/settings-cli-backend.png)
 
 Agent Monitor is a Tauri app for orchestrating multiple agents across local workspaces. It provides a sidebar to manage projects, a home screen for quick actions, and a conversation view backed by the agent app-server protocol.
 
