@@ -42,7 +42,7 @@ describe("useThreadApprovalEvents", () => {
     vi.mocked(matchesCommandPrefix).mockReturnValue(true);
 
     const { result } = renderHook(() =>
-      useThreadApprovalEvents({ dispatch, approvalAllowlistRef }),
+      useThreadApprovalEvents({ dispatch, approvalAllowlistRef, approvalsEnabled: true }),
     );
 
     act(() => {
@@ -72,7 +72,7 @@ describe("useThreadApprovalEvents", () => {
     vi.mocked(matchesCommandPrefix).mockReturnValue(false);
 
     const { result } = renderHook(() =>
-      useThreadApprovalEvents({ dispatch, approvalAllowlistRef }),
+      useThreadApprovalEvents({ dispatch, approvalAllowlistRef, approvalsEnabled: true }),
     );
 
     act(() => {
@@ -81,5 +81,29 @@ describe("useThreadApprovalEvents", () => {
 
     expect(respondToServerRequest).not.toHaveBeenCalled();
     expect(dispatch).toHaveBeenCalledWith({ type: "addApproval", approval });
+  });
+
+  it("ignores approvals when approvals are disabled", () => {
+    const dispatch = vi.fn();
+    const approvalAllowlistRef = {
+      current: { "ws-1": [["git", "status"]] },
+    };
+    const approval: ApprovalRequest = {
+      workspace_id: "ws-1",
+      request_id: 9,
+      method: "approval/request",
+      params: { argv: ["git", "status"] },
+    };
+
+    const { result } = renderHook(() =>
+      useThreadApprovalEvents({ dispatch, approvalAllowlistRef, approvalsEnabled: false }),
+    );
+
+    act(() => {
+      result.current(approval);
+    });
+
+    expect(respondToServerRequest).not.toHaveBeenCalled();
+    expect(dispatch).not.toHaveBeenCalled();
   });
 });

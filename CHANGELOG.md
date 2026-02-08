@@ -36,6 +36,7 @@ All notable changes to this project are documented in this file.
 - Extracted Settings CLI backend mapping logic into `src/features/settings/utils/cliBackend.ts` so multi-model behavior is isolated from the Settings view component for parity-oriented refactors.
 - Expanded structured Codex `config.toml` settings coverage in app settings sync/UI (model write, provider/reasoning/search/auth/update policy keys plus additional `[features]` flags), while keeping raw TOML editing available for advanced unmanaged sections.
 - Added CLI capability tiers (`Full` vs `Compatible`) with shared capability mapping, surfaced mode messaging in Settings, and capability-based disabling/gating for unsupported collaboration/apps/Codex-config controls on non-Codex CLIs.
+- Extended capability gating into thread/runtime flows so compatible CLIs suppress approval surfaces and unsupported interrupt/apps/MCP actions gracefully instead of exposing full-mode controls.
 
 ### Added
 - Added this root-level changelog to track ongoing work in canonical form.

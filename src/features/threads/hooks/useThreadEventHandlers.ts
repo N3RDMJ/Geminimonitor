@@ -33,6 +33,7 @@ type ThreadEventHandlersOptions = {
   onReviewExited?: (workspaceId: string, threadId: string) => void;
   approvalAllowlistRef: MutableRefObject<Record<string, string[][]>>;
   pendingInterruptsRef: MutableRefObject<Set<string>>;
+  approvalsEnabled: boolean;
 };
 
 export function useThreadEventHandlers({
@@ -53,10 +54,12 @@ export function useThreadEventHandlers({
   onReviewExited,
   approvalAllowlistRef,
   pendingInterruptsRef,
+  approvalsEnabled,
 }: ThreadEventHandlersOptions) {
   const onApprovalRequest = useThreadApprovalEvents({
     dispatch,
     approvalAllowlistRef,
+    approvalsEnabled,
   });
   const onRequestUserInput = useThreadUserInputEvents({ dispatch });
 

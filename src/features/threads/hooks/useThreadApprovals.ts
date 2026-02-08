@@ -11,9 +11,14 @@ import type { ThreadAction } from "./useThreadsReducer";
 type UseThreadApprovalsOptions = {
   dispatch: Dispatch<ThreadAction>;
   onDebug?: (entry: DebugEntry) => void;
+  approvalsEnabled: boolean;
 };
 
-export function useThreadApprovals({ dispatch, onDebug }: UseThreadApprovalsOptions) {
+export function useThreadApprovals({
+  dispatch,
+  onDebug,
+  approvalsEnabled,
+}: UseThreadApprovalsOptions) {
   const approvalAllowlistRef = useRef<Record<string, string[][]>>({});
 
   const rememberApprovalPrefix = useCallback((workspaceId: string, command: string[]) => {
@@ -37,6 +42,14 @@ export function useThreadApprovals({ dispatch, onDebug }: UseThreadApprovalsOpti
 
   const handleApprovalDecision = useCallback(
     async (request: ApprovalRequest, decision: "accept" | "decline") => {
+      if (!approvalsEnabled) {
+        dispatch({
+          type: "removeApproval",
+          requestId: request.request_id,
+          workspaceId: request.workspace_id,
+        });
+        return;
+      }
       await respondToServerRequest(
         request.workspace_id,
         request.request_id,
@@ -48,11 +61,19 @@ export function useThreadApprovals({ dispatch, onDebug }: UseThreadApprovalsOpti
         workspaceId: request.workspace_id,
       });
     },
-    [dispatch],
+    [approvalsEnabled, dispatch],
   );
 
   const handleApprovalRemember = useCallback(
     async (request: ApprovalRequest, command: string[]) => {
+      if (!approvalsEnabled) {
+        dispatch({
+          type: "removeApproval",
+          requestId: request.request_id,
+          workspaceId: request.workspace_id,
+        });
+        return;
+      }
       try {
         await rememberApprovalRule(request.workspace_id, command);
       } catch (error) {
@@ -78,7 +99,7 @@ export function useThreadApprovals({ dispatch, onDebug }: UseThreadApprovalsOpti
         workspaceId: request.workspace_id,
       });
     },
-    [dispatch, onDebug, rememberApprovalPrefix],
+    [approvalsEnabled, dispatch, onDebug, rememberApprovalPrefix],
   );
 
   return {

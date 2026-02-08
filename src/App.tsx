@@ -745,7 +745,9 @@ function MainApp() {
     customPrompts: prompts,
     onMessageActivity: queueGitStatusRefresh,
     threadSortKey: threadListSortKey,
+    cliCapabilities: activeCliCapabilities,
   });
+  const visibleApprovals = activeCliCapabilities.supportsApprovals ? approvals : [];
 
   const handleSetThreadListSortKey = useCallback(
     (nextSortKey: ThreadListSortKey) => {
@@ -767,7 +769,7 @@ function MainApp() {
 
   useResponseRequiredNotificationsController({
     systemNotificationsEnabled: appSettings.systemNotificationsEnabled,
-    approvals,
+    approvals: visibleApprovals,
     userInputRequests,
     getWorkspaceName,
     onDebug: addDebugEntry,
@@ -1186,6 +1188,7 @@ function MainApp() {
   const canInterrupt = activeThreadId
     ? threadStatusById[activeThreadId]?.isProcessing ?? false
     : false;
+  const canInterruptActiveCli = canInterrupt && activeCliCapabilities.supportsInterrupt;
   const isStartingDraftThread =
     Boolean(activeWorkspaceId) && startingDraftThreadWorkspaceId === activeWorkspaceId;
   const isProcessing =
@@ -1221,7 +1224,7 @@ function MainApp() {
     isProcessing,
     isReviewing,
     steerEnabled: appSettings.steerEnabled,
-    appsEnabled: appSettings.experimentalAppsEnabled,
+    appsEnabled: appSettings.experimentalAppsEnabled && activeCliCapabilities.supportsApps,
     connectWorkspace,
     startThreadForWorkspace,
     sendUserMessage,
@@ -1835,7 +1838,7 @@ function MainApp() {
     openAppIconById,
     selectedOpenAppId: appSettings.selectedOpenAppId,
     onSelectOpenAppId: handleSelectOpenAppId,
-    approvals,
+    approvals: visibleApprovals,
     userInputRequests,
     handleApprovalDecision,
     handleApprovalRemember,
@@ -2103,7 +2106,7 @@ function MainApp() {
     onSend: handleComposerSendWithDraftStart,
     onQueue: handleComposerQueueWithDraftStart,
     onStop: interruptTurn,
-    canStop: canInterrupt,
+    canStop: canInterruptActiveCli,
     onFileAutocompleteActiveChange: setFileAutocompleteActive,
     isReviewing,
     isProcessing,
@@ -2162,7 +2165,7 @@ function MainApp() {
     accessMode,
     onSelectAccessMode: setAccessMode,
     skills,
-    appsEnabled: appSettings.experimentalAppsEnabled,
+    appsEnabled: appSettings.experimentalAppsEnabled && activeCliCapabilities.supportsApps,
     apps,
     prompts,
     files,
@@ -2245,7 +2248,7 @@ function MainApp() {
       threadStatusById={threadStatusById}
       onSelectInstance={handleSelectWorkspaceInstance}
       skills={skills}
-      appsEnabled={appSettings.experimentalAppsEnabled}
+      appsEnabled={appSettings.experimentalAppsEnabled && activeCliCapabilities.supportsApps}
       apps={apps}
       prompts={prompts}
       files={files}
