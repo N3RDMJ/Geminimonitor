@@ -44,6 +44,7 @@ All notable changes to this project are documented in this file.
 - Approval request handling now sends explicit server responses even when approvals UI is disabled (auto-decline for incoming hidden approvals), preventing backend approval waits from hanging.
 - Hardened release workflow signing key handling to accept raw or base64 minisign private keys with explicit format validation, and to allow unsigned macOS packaging fallback on forks without Apple signing secrets.
 - Rotated the Tauri updater signing keypair for the fork test release and updated `src-tauri/tauri.conf.json` updater public key to match the new CI signing secret.
+- Fixed release workflow updater env wiring by passing the signing key file path (not inline key content) to `TAURI_SIGNING_PRIVATE_KEY`, resolving base64 decode failures during bundle builds.
 
 ### Added
 - Added backend `agent_profiles_list` and `agent_profile_apply` command surfaces (app + daemon + shared core) to discover `profiles/*` entries and apply profile files with symlink-first auto fallback to copy mode.
