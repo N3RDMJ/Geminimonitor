@@ -37,6 +37,7 @@ All notable changes to this project are documented in this file.
 - Expanded structured Codex `config.toml` settings coverage in app settings sync/UI (model write, provider/reasoning/search/auth/update policy keys plus additional `[features]` flags), while keeping raw TOML editing available for advanced unmanaged sections.
 - Added CLI capability tiers (`Full` vs `Compatible`) with shared capability mapping, surfaced mode messaging in Settings, and capability-based disabling/gating for unsupported collaboration/apps/Codex-config controls on non-Codex CLIs.
 - Extended capability gating into thread/runtime flows so compatible CLIs suppress approval surfaces and unsupported interrupt/apps/MCP actions gracefully instead of exposing full-mode controls.
+- Backend session spawn now auto-detects JSON-RPC app-server support per CLI; when unavailable, it falls back to a PTY-compatible sidecar transport that preserves basic thread lifecycle and message streaming without breaking Codex full-mode behavior.
 
 ### Added
 - Added this root-level changelog to track ongoing work in canonical form.
