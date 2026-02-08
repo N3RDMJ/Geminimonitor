@@ -372,6 +372,18 @@ pub(crate) async fn spawn_workspace_session<E: EventSink>(
         )
         .await;
     }
+    if config.cli_type == "gemini" {
+        return crate::backend::gemini_adapter::spawn_gemini_session(
+            entry, config, event_sink,
+        )
+        .await;
+    }
+    if config.cli_type == "cursor" {
+        return crate::backend::cursor_adapter::spawn_cursor_session(
+            entry, config, event_sink,
+        )
+        .await;
+    }
 
     let codex_bin = config
         .cli_bin
