@@ -10,6 +10,7 @@ pub(crate) struct DetectedClis {
     pub(crate) cursor: Option<String>,
 }
 
+/// Probes default bin names on PATH; ignores user-configured custom bin overrides.
 pub(crate) async fn detect_installed_clis() -> DetectedClis {
     let (codex, claude, gemini, cursor) = tokio::join!(
         probe_cli(Some("codex".to_string()), "Codex"),

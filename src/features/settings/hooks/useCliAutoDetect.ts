@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AppSettings, CliType, DetectedClis } from "../../../types";
 import { detectInstalledClis } from "../../../services/tauri";
 
@@ -19,6 +19,8 @@ export function useCliAutoDetect(
   saveSettings: (next: AppSettings) => Promise<AppSettings>,
 ): DetectedClis | null {
   const [detected, setDetected] = useState<DetectedClis | null>(null);
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
 
   useEffect(() => {
     if (isLoading) {
@@ -32,12 +34,13 @@ export function useCliAutoDetect(
           return;
         }
         setDetected(result);
-        if (settings.cliTypeManuallySet) {
+        const current = settingsRef.current;
+        if (current.cliTypeManuallySet) {
           return;
         }
         const best = pickBestCli(result);
-        if (best && best !== settings.cliType) {
-          await saveSettings({ ...settings, cliType: best });
+        if (best && best !== current.cliType) {
+          await saveSettings({ ...current, cliType: best });
         }
       } catch {
         // Detection is best-effort; ignore failures.
@@ -46,8 +49,8 @@ export function useCliAutoDetect(
     return () => {
       active = false;
     };
-    // Run once after settings load — intentionally omitting settings from deps
-    // to avoid re-running on every settings change.
+    // Run once after settings load — intentionally omitting settings/saveSettings
+    // from deps to avoid re-running on every settings change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
