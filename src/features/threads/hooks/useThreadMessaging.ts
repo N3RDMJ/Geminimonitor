@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import type { Dispatch, MutableRefObject } from "react";
 import type {
   AccessMode,
+  CliCapabilities,
   RateLimitSnapshot,
   CustomPromptOption,
   DebugEntry,
@@ -67,6 +68,7 @@ type UseThreadMessagingOptions = {
   refreshThread: (workspaceId: string, threadId: string) => Promise<string | null>;
   forkThreadForWorkspace: (workspaceId: string, threadId: string) => Promise<string | null>;
   updateThreadParent: (parentId: string, childIds: string[]) => void;
+  cliCapabilities?: CliCapabilities;
 };
 
 export function useThreadMessaging({
@@ -97,6 +99,7 @@ export function useThreadMessaging({
   refreshThread,
   forkThreadForWorkspace,
   updateThreadParent,
+  cliCapabilities,
 }: UseThreadMessagingOptions) {
   const sendMessageToThread = useCallback(
     async (
@@ -325,6 +328,15 @@ export function useThreadMessaging({
     if (!activeWorkspace || !activeThreadId) {
       return;
     }
+    if (cliCapabilities?.supportsInterrupt === false) {
+      dispatch({
+        type: "addAssistantMessage",
+        threadId: activeThreadId,
+        text: "Interrupt is unavailable in Compatible mode for this CLI.",
+      });
+      safeMessageActivity();
+      return;
+    }
     const activeTurnId = activeTurnIdByThread[activeThreadId] ?? null;
     const turnId = activeTurnId ?? "pending";
     markProcessing(activeThreadId, false);
@@ -379,7 +391,9 @@ export function useThreadMessaging({
     markProcessing,
     onDebug,
     pendingInterruptsRef,
+    safeMessageActivity,
     setActiveTurnId,
+    cliCapabilities,
   ]);
 
   const startReviewTarget = useCallback(
@@ -619,6 +633,19 @@ export function useThreadMessaging({
       if (!activeWorkspace) {
         return;
       }
+      if (cliCapabilities?.supportsMcpServers === false) {
+        const threadId = await ensureThreadForActiveWorkspace();
+        if (!threadId) {
+          return;
+        }
+        dispatch({
+          type: "addAssistantMessage",
+          threadId,
+          text: "MCP status is unavailable in Compatible mode for this CLI.",
+        });
+        safeMessageActivity();
+        return;
+      }
       const threadId = await ensureThreadForActiveWorkspace();
       if (!threadId) {
         return;
@@ -714,12 +741,26 @@ export function useThreadMessaging({
       ensureThreadForActiveWorkspace,
       recordThreadActivity,
       safeMessageActivity,
+      cliCapabilities,
     ],
   );
 
   const startApps = useCallback(
     async (_text: string) => {
       if (!activeWorkspace) {
+        return;
+      }
+      if (cliCapabilities?.supportsApps === false) {
+        const threadId = await ensureThreadForActiveWorkspace();
+        if (!threadId) {
+          return;
+        }
+        dispatch({
+          type: "addAssistantMessage",
+          threadId,
+          text: "Apps listing is unavailable in Compatible mode for this CLI.",
+        });
+        safeMessageActivity();
         return;
       }
       const threadId = await ensureThreadForActiveWorkspace();
@@ -799,6 +840,7 @@ export function useThreadMessaging({
       ensureThreadForActiveWorkspace,
       recordThreadActivity,
       safeMessageActivity,
+      cliCapabilities,
     ],
   );
 

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useReducer, useRef } from "react";
 import type {
+  CliCapabilities,
   CustomPromptOption,
   DebugEntry,
   ThreadListSortKey,
@@ -34,6 +35,7 @@ type UseThreadsOptions = {
   customPrompts?: CustomPromptOption[];
   onMessageActivity?: () => void;
   threadSortKey?: ThreadListSortKey;
+  cliCapabilities?: CliCapabilities;
 };
 
 export function useThreads({
@@ -49,6 +51,7 @@ export function useThreads({
   customPrompts = [],
   onMessageActivity,
   threadSortKey = "updated_at",
+  cliCapabilities,
 }: UseThreadsOptions) {
   const [state, dispatch] = useReducer(threadReducer, initialState);
   const loadedThreadsRef = useRef<Record<string, boolean>>({});
@@ -58,7 +61,11 @@ export function useThreads({
   const detachedReviewNoticeRef = useRef<Set<string>>(new Set());
   planByThreadRef.current = state.planByThread;
   const { approvalAllowlistRef, handleApprovalDecision, handleApprovalRemember } =
-    useThreadApprovals({ dispatch, onDebug });
+    useThreadApprovals({
+      dispatch,
+      onDebug,
+      approvalsEnabled: cliCapabilities?.supportsApprovals !== false,
+    });
   const { handleUserInputSubmit } = useThreadUserInput({ dispatch });
   const {
     customNamesRef,
@@ -216,6 +223,7 @@ export function useThreads({
     onReviewExited: handleReviewExited,
     approvalAllowlistRef,
     pendingInterruptsRef,
+    approvalsEnabled: cliCapabilities?.supportsApprovals !== false,
   });
 
   const handleAccountLoginCompleted = useCallback(
@@ -373,6 +381,7 @@ export function useThreads({
     refreshThread,
     forkThreadForWorkspace,
     updateThreadParent,
+    cliCapabilities,
   });
 
   const setActiveThreadId = useCallback(
@@ -423,7 +432,8 @@ export function useThreads({
     activeThreadId,
     setActiveThreadId,
     activeItems,
-    approvals: state.approvals,
+    approvals:
+      cliCapabilities?.supportsApprovals === false ? [] : state.approvals,
     userInputRequests: state.userInputRequests,
     threadsByWorkspace: state.threadsByWorkspace,
     threadParentById: state.threadParentById,

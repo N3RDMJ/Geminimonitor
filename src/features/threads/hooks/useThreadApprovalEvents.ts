@@ -11,14 +11,19 @@ import type { ThreadAction } from "./useThreadsReducer";
 type UseThreadApprovalEventsOptions = {
   dispatch: Dispatch<ThreadAction>;
   approvalAllowlistRef: MutableRefObject<Record<string, string[][]>>;
+  approvalsEnabled: boolean;
 };
 
 export function useThreadApprovalEvents({
   dispatch,
   approvalAllowlistRef,
+  approvalsEnabled,
 }: UseThreadApprovalEventsOptions) {
   return useCallback(
     (approval: ApprovalRequest) => {
+      if (!approvalsEnabled) {
+        return;
+      }
       const commandInfo = getApprovalCommandInfo(approval.params ?? {});
       const allowlist =
         approvalAllowlistRef.current[approval.workspace_id] ?? [];
@@ -32,6 +37,6 @@ export function useThreadApprovalEvents({
       }
       dispatch({ type: "addApproval", approval });
     },
-    [approvalAllowlistRef, dispatch],
+    [approvalAllowlistRef, approvalsEnabled, dispatch],
   );
 }
