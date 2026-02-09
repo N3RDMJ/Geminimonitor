@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## 0.8.3
+
+### Fixed
+- macOS release now always bundles OpenSSL and falls back to ad-hoc signing when Apple credentials are unavailable.
+- Tauri signing key handling aligned with upstream (base64-decode on write, cat on read).
+- macOS notarization now staples the DMG itself, not just the inner `.app` bundle.
+- macOS DMG now includes an Applications symlink for standard drag-to-install UX.
+
 ### Changed
 - Release workflow now packages Windows installer (`.exe`), MSI (`.msi`), and portable zip assets together and publishes `SHA256SUMS.txt` alongside release assets.
 - Workspace connect now auto-attempts sandbox bootstrap for the active CLI: Codex/Claude project MCP registration (`gondolin` via `npx @earendil-works/gondolin mcp`) and Gemini settings upsert, so sandbox tooling is available without separate Gondolin install steps.
