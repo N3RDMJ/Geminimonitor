@@ -200,6 +200,27 @@ jobs:
           cp "src-tauri/target/release/bundle/macos/Agent Monitor.app.tar.gz.sig" \
             release-artifacts/CodexMonitor.app.tar.gz.sig
 
+      - name: Notarize and staple DMG
+        if: ${{ steps.mac_signing.outputs.notarize_macos == 'true' }}
+        run: |
+          set -euo pipefail
+          VERSION=$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path("src-tauri/tauri.conf.json").read_text())
+          print(data["version"])
+          PY
+          )
+
+          xcrun notarytool submit \
+            "release-artifacts/CodexMonitor_${VERSION}_aarch64.dmg" \
+            --keychain-profile "$NOTARY_PROFILE_NAME" \
+            --wait
+
+          xcrun stapler staple \
+            "release-artifacts/CodexMonitor_${VERSION}_aarch64.dmg"
+
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
         with:
