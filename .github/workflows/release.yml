@@ -115,33 +115,19 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.tauri"
-          key_value="$(printf '%s' "$TAURI_SIGNING_PRIVATE_KEY_B64" | tr -d '\r')"
-          if printf '%s' "$key_value" | grep -q '^untrusted comment:'; then
-            key_value="$(printf '%s' "$key_value" | base64 | tr -d '\n')"
-          fi
-          decoded="$(printf '%s' "$key_value" | base64 --decode 2>/dev/null || true)"
-          if ! printf '%s' "$decoded" | head -n 1 | grep -q '^untrusted comment:'; then
-            echo "Invalid TAURI_SIGNING_PRIVATE_KEY_B64 secret: expected encoded minisign key (or raw key beginning with 'untrusted comment:')."
-            exit 1
-          fi
-          printf '%s' "$key_value" > "$HOME/.tauri/codexmonitor.key"
+          echo "$TAURI_SIGNING_PRIVATE_KEY_B64" | base64 --decode > "$HOME/.tauri/codexmonitor.key"
 
       - name: Build app bundle
         run: |
           set -euo pipefail
           export TAURI_SIGNING_PRIVATE_KEY
-          TAURI_SIGNING_PRIVATE_KEY="$HOME/.tauri/codexmonitor.key"
+          TAURI_SIGNING_PRIVATE_KEY="$(cat "$HOME/.tauri/codexmonitor.key")"
           npm run tauri -- build --bundles app
 
-      - name: Skip signing for test release
-        if: ${{ steps.mac_signing.outputs.sign_macos != 'true' }}
-        run: echo "Apple signing secrets are missing; packaging unsigned macOS artifacts for test release."
-
       - name: Bundle OpenSSL and re-sign
-        if: ${{ steps.mac_signing.outputs.sign_macos == 'true' }}
         run: |
           set -euo pipefail
-          CODESIGN_IDENTITY="$CODESIGN_IDENTITY" \
+          CODESIGN_IDENTITY="${CODESIGN_IDENTITY:-}" \
             scripts/macos-fix-openssl.sh
 
       - name: Notarize and staple
@@ -175,6 +161,7 @@ jobs:
           rm -rf "release-artifacts/dmg-root/Agent Monitor.app"
           ditto "src-tauri/target/release/bundle/macos/Agent Monitor.app" \
             "release-artifacts/dmg-root/Agent Monitor.app"
+          ln -sf /Applications release-artifacts/dmg-root/Applications
 
           ditto -c -k --keepParent \
             "src-tauri/target/release/bundle/macos/Agent Monitor.app" \
@@ -198,6 +185,27 @@ jobs:
             release-artifacts/CodexMonitor.app.tar.gz
           cp "src-tauri/target/release/bundle/macos/Agent Monitor.app.tar.gz.sig" \
             release-artifacts/CodexMonitor.app.tar.gz.sig
+
+      - name: Notarize and staple DMG
+        if: ${{ steps.mac_signing.outputs.notarize_macos == 'true' }}
+        run: |
+          set -euo pipefail
+          VERSION=$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path("src-tauri/tauri.conf.json").read_text())
+          print(data["version"])
+          PY
+          )
+
+          xcrun notarytool submit \
+            "release-artifacts/CodexMonitor_${VERSION}_aarch64.dmg" \
+            --keychain-profile "$NOTARY_PROFILE_NAME" \
+            --wait
+
+          xcrun stapler staple \
+            "release-artifacts/CodexMonitor_${VERSION}_aarch64.dmg"
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
@@ -253,22 +261,13 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.tauri"
-          key_value="$(printf '%s' "$TAURI_SIGNING_PRIVATE_KEY_B64" | tr -d '\r')"
-          if printf '%s' "$key_value" | grep -q '^untrusted comment:'; then
-            key_value="$(printf '%s' "$key_value" | base64 | tr -d '\n')"
-          fi
-          decoded="$(printf '%s' "$key_value" | base64 --decode 2>/dev/null || true)"
-          if ! printf '%s' "$decoded" | head -n 1 | grep -q '^untrusted comment:'; then
-            echo "Invalid TAURI_SIGNING_PRIVATE_KEY_B64 secret: expected encoded minisign key (or raw key beginning with 'untrusted comment:')."
-            exit 1
-          fi
-          printf '%s' "$key_value" > "$HOME/.tauri/codexmonitor.key"
+          echo "$TAURI_SIGNING_PRIVATE_KEY_B64" | base64 --decode > "$HOME/.tauri/codexmonitor.key"
 
       - name: build AppImage and RPM
         run: |
           set -euo pipefail
           export TAURI_SIGNING_PRIVATE_KEY
-          TAURI_SIGNING_PRIVATE_KEY="$HOME/.tauri/codexmonitor.key"
+          TAURI_SIGNING_PRIVATE_KEY="$(cat "$HOME/.tauri/codexmonitor.key")"
           npm run tauri -- build --bundles appimage,rpm
 
       - name: Validate Linux bundle outputs
@@ -336,17 +335,11 @@ jobs:
           import os
           from pathlib import Path
 
-          value = os.environ["TAURI_SIGNING_PRIVATE_KEY_B64"].replace("\r", "")
-          if value.startswith("untrusted comment:"):
-            value = base64.b64encode(value.encode("utf-8")).decode("ascii")
-          raw = base64.b64decode(value)
+          raw = base64.b64decode(os.environ["TAURI_SIGNING_PRIVATE_KEY_B64"])
           home = Path.home()
           target = home / ".tauri"
           target.mkdir(parents=True, exist_ok=True)
-          first_line = raw.decode("utf-8", errors="replace").splitlines()[0:1]
-          if not first_line or not first_line[0].startswith("untrusted comment:"):
-            raise SystemExit("Invalid TAURI_SIGNING_PRIVATE_KEY_B64 secret: expected encoded minisign key (or raw key beginning with 'untrusted comment:').")
-          (target / "codexmonitor.key").write_text(value, encoding="utf-8")
+          (target / "codexmonitor.key").write_bytes(raw)
           PY
 
       - name: build windows bundles
@@ -354,7 +347,7 @@ jobs:
         run: |
           set -euo pipefail
           export TAURI_SIGNING_PRIVATE_KEY
-          TAURI_SIGNING_PRIVATE_KEY="$HOME/.tauri/codexmonitor.key"
+          TAURI_SIGNING_PRIVATE_KEY="$(cat "$HOME/.tauri/codexmonitor.key")"
           npm run tauri:build:win
 
       - name: Upload Windows artifacts
