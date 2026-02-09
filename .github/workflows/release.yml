@@ -175,6 +175,7 @@ jobs:
           rm -rf "release-artifacts/dmg-root/Agent Monitor.app"
           ditto "src-tauri/target/release/bundle/macos/Agent Monitor.app" \
             "release-artifacts/dmg-root/Agent Monitor.app"
+          ln -sf /Applications release-artifacts/dmg-root/Applications
 
           ditto -c -k --keepParent \
             "src-tauri/target/release/bundle/macos/Agent Monitor.app" \
